@@ -671,6 +671,42 @@ input[type="range"]::-moz-range-thumb{
 .brk-gl { font-family: "JetBrains Mono",monospace; font-size: 8px; text-transform: uppercase; letter-spacing: .09em; color: rgba(255,255,255,.25); margin-bottom: 2px; }
 .brk-gv { font-family: "JetBrains Mono",monospace; font-size: 11.5px; }
 
+
+/* ══ SETTINGS ════════════════════════════════════════════════ */
+.set-container{max-width:640px;margin:0 auto;padding:20px 15px 32px}
+.set-title{font-family:"Cormorant Garamond",serif;font-size:26px;font-weight:600;color:white;letter-spacing:-0.01em;margin-bottom:3px}
+.set-sub{font-size:12px;color:var(--mu);margin-bottom:24px}
+.set-section{margin-bottom:24px}
+.set-section-title{font-family:"JetBrains Mono",monospace;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.16em;color:rgba(255,255,255,.32);margin-bottom:10px;display:block}
+.set-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid rgba(255,255,255,.04);gap:12px}
+.set-row:last-child{border-bottom:none}
+.set-row-left{flex:1}
+.set-row-label{font-size:14px;font-weight:500;color:white;margin-bottom:2px}
+.set-row-sub{font-size:11px;color:var(--mu);line-height:1.4}
+.set-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:10px;border:none;cursor:pointer;
+  font-family:"DM Sans",sans-serif;font-size:13px;font-weight:500;
+  transition:all .15s;white-space:nowrap;flex-shrink:0;
+}
+.set-btn:active{transform:scale(.96)}
+.set-btn-gold{background:linear-gradient(135deg,#ffbf47,#e8890a);color:#06060e;box-shadow:0 0 0 1px rgba(245,166,35,.3),0 4px 16px rgba(245,166,35,.2)}
+.set-btn-ghost{background:rgba(255,255,255,.06);color:var(--mu);border:1px solid var(--bd)}
+.set-btn-ghost:hover{background:rgba(255,255,255,.1);color:white}
+.set-btn-red{background:rgba(255,107,122,.1);color:var(--red);border:1px solid rgba(255,107,122,.18)}
+.set-btn-red:hover{background:rgba(255,107,122,.18)}
+.set-btn svg{width:14px;height:14px}
+
+/* Confirm dialog */
+.confirm-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px}
+.confirm-overlay.hidden{display:none}
+.confirm-box{background:#111119;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:24px;max-width:320px;width:100%;box-shadow:0 8px 48px rgba(0,0,0,.6)}
+.confirm-title{font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:600;color:white;margin-bottom:8px}
+.confirm-msg{font-size:13px;color:var(--mu);line-height:1.6;margin-bottom:20px}
+.confirm-btns{display:flex;gap:10px}
+.confirm-btns .set-btn{flex:1;justify-content:center}
+
 </style>
 </head>
 <body>
@@ -1166,6 +1202,109 @@ input[type="range"]::-moz-range-thumb{
 </div>
 </div>
 
+
+<!-- ══ SETTINGS ═════════════════════════════════════════════════ -->
+<div id="page-settings" class="page">
+<div class="set-container">
+
+  <div class="set-title">Settings</div>
+  <div class="set-sub">Data management &amp; backup</div>
+
+  <!-- BACKUP ──────────────────────────────────────────────────── -->
+  <div class="set-section">
+    <span class="set-section-title">Backup &amp; Restore</span>
+    <div class="set-card">
+
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Export Data</div>
+          <div class="set-row-sub">Tüm verilerini JSON dosyası olarak indir. Yedek olarak sakla.</div>
+        </div>
+        <button class="set-btn set-btn-gold" onclick="exportData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export
+        </button>
+      </div>
+
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Import Data</div>
+          <div class="set-row-sub">Daha önce export ettiğin JSON dosyasını yükle. Mevcut verinin üzerine yazar.</div>
+        </div>
+        <button class="set-btn set-btn-ghost" onclick="document.getElementById('import-file').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Import
+        </button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"/>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- START VALUE ─────────────────────────────────────────────── -->
+  <div class="set-section">
+    <span class="set-section-title">Portfolio Settings</span>
+    <div class="set-card">
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Starting Portfolio Value</div>
+          <div class="set-row-sub">Tüm hedef hesaplamalarının başlangıç noktası.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" id="set-startval" min="0" step="100"
+            style="width:110px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:7px 10px;color:white;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;text-align:right"
+            onfocus="this.style.borderColor='rgba(245,166,35,.5)'"
+            onblur="this.style.borderColor='rgba(255,255,255,.1)'"/>
+          <button class="set-btn set-btn-gold" onclick="saveStartValue()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DANGER ZONE ─────────────────────────────────────────────── -->
+  <div class="set-section">
+    <span class="set-section-title">Danger Zone</span>
+    <div class="set-card">
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Reset All Data</div>
+          <div class="set-row-sub">Tüm verilerini sil, varsayılan örnek veriye dön.</div>
+        </div>
+        <button class="set-btn set-btn-red" onclick="showConfirm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+          </svg>
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP INFO ────────────────────────────────────────────────── -->
+  <div class="set-section">
+    <div class="set-card">
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">WealthArc</div>
+          <div class="set-row-sub">Storage key: wealtharc_v4 · Data stored locally in your browser</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
 </main>
 
 <!-- NAV -->
@@ -1209,6 +1348,13 @@ input[type="range"]::-moz-range-thumb{
       <path d="M12 2 L12 12 L20.66 7"/>
     </svg>
     <span class="nav-label">Breakdown</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('settings',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+    <span class="nav-label">Settings</span>
   </button>
 </nav>
 
@@ -1883,6 +2029,7 @@ function showPage(id,btn){
   if(id==='projection')renderProjection()
   if(id==='income')renderIncome()
   if(id==='breakdown')renderBreakdown()
+  if(id==='settings')renderSettings()
   // Scroll after render — setTimeout ensures DOM has painted first
   setTimeout(()=>{ window.scrollTo(0,0) }, 0)
 }
@@ -1892,6 +2039,7 @@ function render(){
   if(id==='timeline')renderTimeline()
   if(id==='income')renderIncome()
   if(id==='breakdown')renderBreakdown()
+  if(id==='settings')renderSettings()
 }
 
 // ─── TOAST ────────────────────────────────────────────────────
@@ -2902,6 +3050,77 @@ function deleteBrkEntry(){
   save(); closeBrkModal(); renderBreakdown(); toast('Deleted')
 }
 
+
+// ═══════════════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════════════
+
+function renderSettings(){
+  // Populate start value input
+  document.getElementById('set-startval').value = state.startValue || ''
+}
+
+// ── Export ─────────────────────────────────────────────────────
+function exportData(){
+  try {
+    const json = JSON.stringify(state, null, 2)
+    const blob = new Blob([json], {type: 'application/json'})
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    const date = new Date().toISOString().slice(0,10)
+    a.href     = url
+    a.download = `wealtharc-backup-${date}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast('Yedek indirildi ✓')
+  } catch(e) {
+    toast('Export başarısız')
+    console.error(e)
+  }
+}
+
+// ── Import ─────────────────────────────────────────────────────
+function importData(event){
+  const file = event.target.files[0]
+  if(!file) return
+  const reader = new FileReader()
+  reader.onload = function(e){
+    try {
+      const parsed = JSON.parse(e.target.result)
+      const valid  = sanitizeState(parsed)
+      state = valid
+      save()
+      render()
+      toast('Veriler yüklendi ✓')
+    } catch(err) {
+      toast('Geçersiz dosya — yüklenemedi')
+      console.error(err)
+    }
+    // Reset file input so same file can be re-imported if needed
+    event.target.value = ''
+  }
+  reader.readAsText(file)
+}
+
+// ── Start value ────────────────────────────────────────────────
+function saveStartValue(){
+  const v = +document.getElementById('set-startval').value
+  if(!v || v <= 0){ toast('Geçerli bir değer gir'); return }
+  state.startValue = v
+  save()
+  toast('Başlangıç değeri güncellendi ✓')
+}
+
+// ── Reset confirm ──────────────────────────────────────────────
+function showConfirm(){ document.getElementById('confirm-overlay').classList.remove('hidden') }
+function hideConfirm(){ document.getElementById('confirm-overlay').classList.add('hidden') }
+function confirmReset(){
+  hideConfirm()
+  resetData()
+}
+
 // ─── INIT ─────────────────────────────────────────────────────
 renderDashboard()
 </script>
@@ -2994,6 +3213,19 @@ renderDashboard()
       <button class="btn btn-danger btn-sm" id="brk-del-btn" onclick="deleteBrkEntry()" style="display:none">Delete</button>
       <button class="btn btn-ghost btn-sm" onclick="closeBrkModal()">Cancel</button>
       <button class="btn btn-primary btn-sm" onclick="saveBrkEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- CONFIRM DIALOG ──────────────────────────────────────────────── -->
+<div class="confirm-overlay hidden" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-title">Reset All Data?</div>
+    <div class="confirm-msg">Bu işlem geri alınamaz. Tüm aylık veriler, Income ve Breakdown kayıtları silinir. Örnek veriye dönülür.</div>
+    <div class="confirm-btns">
+      <button class="set-btn set-btn-ghost" onclick="hideConfirm()">İptal</button>
+      <button class="set-btn set-btn-red" onclick="confirmReset()">Evet, Sil</button>
     </div>
   </div>
 </div>
