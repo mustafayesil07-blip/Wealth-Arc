@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<meta name="theme-color" content="#09090f" />
+<title>Portfolio Tracker</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg:        #09090f;
+    --surface:   #111118;
+    --surface2:  #18181f;
+    --border:    rgba(255,255,255,0.07);
+    --border2:   rgba(255,255,255,0.04);
+    --text:      #e2e2ea;
+    --muted:     rgba(255,255,255,0.35);
+    --faint:     rgba(255,255,255,0.15);
+    --gold:      #f59e0b;
+    --gold-dim:  rgba(245,158,11,0.15);
+    --gold-glow: rgba(245,158,11,0.25);
+    --green:     #34d399;
+    --green-dim: rgba(52,211,153,0.12);
+    --red:       #f87171;
+    --red-dim:   rgba(248,113,113,0.12);
+    --amber:     #fbbf24;
+    --blue:      #60a5fa;
+    --violet:    #a78bfa;
+    --cyan:      #67e8f9;
+    --radius:    16px;
+    --radius-sm: 10px;
+  }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Layout ── */
+  #app { min-height: 100dvh; display: flex; flex-direction: column; }
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(9,9,15,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, #f59e0b, #8b5cf6);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-icon svg { width: 16px; height: 16px; }
+  .logo-text { font-weight: 600; font-size: 15px; color: white; }
+  .logo-sub { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
+
+  main { flex: 1; padding: 0 0 100px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .container { max-width: 640px; margin: 0 auto; padding: 20px 16px; }
+
+  /* ── Bottom nav ── */
+  nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(11,11,18,0.96);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border2);
+    display: flex;
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 0 12px;
+    background: none; border: none; cursor: pointer; color: var(--muted);
+    font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
+    transition: color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nav-btn svg { width: 20px; height: 20px; stroke-width: 1.8; }
+  .nav-btn.active { color: var(--gold); }
+  .nav-btn:not(.active):active { color: var(--text); }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .card-pad { padding: 18px; }
+
+  /* ── Label ── */
+  .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--muted); display: block; margin-bottom: 6px;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px 18px; border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
+    cursor: pointer; border: none; transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #09090f;
+    box-shadow: 0 0 20px var(--gold-glow);
+  }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-ghost { background: rgba(255,255,255,0.05); color: var(--muted); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+  .btn-danger { background: var(--red-dim); color: var(--red); }
+  .btn-danger:hover { background: rgba(248,113,113,0.2); }
+  .btn-sm { padding: 7px 14px; font-size: 13px; }
+  .btn svg { width: 15px; height: 15px; }
+
+  /* ── Inputs ── */
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { display: block; margin-bottom: 6px; }
+  input[type="number"], input[type="month"], input[type="text"] {
+    width: 100%; padding: 11px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: var(--radius-sm);
+    color: white; font-family: 'JetBrains Mono', monospace; font-size: 14px;
+    outline: none; transition: all 0.15s;
+    -webkit-appearance: none;
+  }
+  input:focus {
+    border-color: rgba(245,158,11,0.5);
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.08);
+  }
+  input::placeholder { color: rgba(255,255,255,0.18); }
+
+  /* ── Modal ── */
+  .overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .overlay.hidden { display: none; }
+  @media (min-width: 480px) { .overlay { align-items: center; } }
+  .modal {
+    width: 100%; max-width: 460px;
+    background: #141420;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 24px 24px 0 0;
+    overflow: hidden;
+    animation: slideUp 0.22s ease-out;
+  }
+  @media (min-width: 480px) { .modal { border-radius: 20px; } }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .modal-handle {
+    display: flex; justify-content: center; padding: 12px 0 4px;
+  }
+  .modal-handle div {
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.15); border-radius: 2px;
+  }
+  @media (min-width: 480px) { .modal-handle { display: none; } }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px 14px;
+    border-bottom: 1px solid var(--border2);
+  }
+  .modal-header h2 { font-size: 15px; font-weight: 600; color: white; }
+  .modal-close {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(255,255,255,0.05); border: none; cursor: pointer;
+    color: var(--muted); display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1; transition: all 0.15s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.1); color: white; }
+  .modal-body { padding: 20px; }
+  .modal-footer {
+    padding: 0 20px 24px;
+    display: flex; gap: 10px;
+  }
+  .modal-footer .btn { flex: 1; }
+
+  /* ── Grid ── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .gap-3 { gap: 12px; }
+
+  /* ── Dashboard specific ── */
+  .big-value {
+    font-size: clamp(2rem, 9vw, 3.2rem);
+    font-weight: 700; color: white; letter-spacing: -0.02em;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.1;
+  }
+  .gap-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 500;
+  }
+  .gap-badge.ahead  { background: var(--green-dim); color: var(--green); }
+  .gap-badge.behind { background: var(--red-dim);   color: var(--red);   }
+  .gap-badge.flat   { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+  .stat-label { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .stat-value { font-size: 17px; font-weight: 600; font-family: 'JetBrains Mono', monospace; color: white; }
+
+  .chart-wrap { position: relative; height: 220px; margin-top: 8px; }
+
+  /* ── Timeline ── */
+  .timeline-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .timeline-header h1 { font-size: 18px; font-weight: 600; color: white; }
+  .timeline-header small { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
+
+  .month-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    cursor: pointer; transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .month-row:active { background: var(--surface2); }
+  .month-row-top {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+  }
+  .month-name { font-weight: 600; font-size: 15px; color: white; }
+  .month-portfolio { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: white; }
+  .month-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .month-stat-label { font-size: 9px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+  .month-stat-val { font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+  .c-green  { color: var(--green); }
+  .c-amber  { color: var(--amber); }
+  .c-red    { color: var(--red); }
+  .c-muted  { color: var(--muted); }
+  .c-gold   { color: var(--gold); }
+  .c-white  { color: white; }
+
+  .empty-state {
+    text-align: center; padding: 48px 20px;
+    color: var(--muted); font-size: 14px; line-height: 1.6;
+  }
+  .empty-state svg { width: 40px; height: 40px; margin: 0 auto 12px; opacity: 0.3; display: block; }
+
+  /* ── Tooltip ── */
+  .chartjs-tooltip {
+    background: rgba(20,20,32,0.97) !important;
+    border: 1px solid rgba(255,255,255,0.09) !important;
+    border-radius: 12px !important;
+    padding: 10px 14px !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 12px !important;
+    pointer-events: none;
+  }
+
+  /* ── Divider ── */
+  hr { border: none; border-top: 1px solid var(--border2); margin: 16px 0; }
+
+  /* ── Scroll ── */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+  /* ── Responsive ── */
+  @media (min-width: 480px) {
+    .month-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+    background: rgba(30,30,45,0.98); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 18px;
+    font-size: 13px; color: white; z-index: 300;
+    transition: opacity 0.3s; pointer-events: none;
+  }
+  #toast.hidden { opacity: 0; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 11 L5 7 L8 9 L12 4 L14 6"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">Portfolio Tracker</div>
+        <div class="logo-sub">Wealth OS</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ══ DASHBOARD ══════════════════════════════════════════ -->
+    <div id="page-dashboard" class="page active">
+      <div class="container">
+
+        <!-- Portfolio value -->
+        <div style="margin-bottom:20px">
+          <span class="label">Current Portfolio</span>
+          <div class="big-value" id="dash-value">—</div>
+          <div style="margin-top:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace" id="dash-month">—</span>
+            <span class="gap-badge flat" id="dash-gap-badge">—</span>
+          </div>
+        </div>
+
+        <!-- Gap card -->
+        <div class="card card-pad" style="margin-bottom:14px" id="dash-gap-card">
+          <span class="label">vs 3% Target</span>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+            <div>
+              <div style="font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace" id="dash-gap-val">—</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px" id="dash-gap-sub">—</div>
+            </div>
+            <div id="dash-gap-icon" style="font-size:28px">—</div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card card-pad" style="margin-bottom:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <span class="label" style="margin-bottom:0">Trajectory</span>
+            <span style="font-size:11px;color:var(--muted)">Actual · 2% · 3% · 4%</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="main-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid2" style="margin-bottom:14px">
+          <div class="card card-pad">
+            <div class="stat-label">Planned Total</div>
+            <div class="stat-value" id="dash-planned">—</div>
+          </div>
+          <div class="card card-pad">
+            <div class="stat-label">Actual Total</div>
+            <div class="stat-value" id="dash-actual">—</div>
+          </div>
+        </div>
+
+        <!-- Growth -->
+        <div class="card card-pad">
+          <div class="stat-label">Estimated Investment Growth</div>
+          <div class="stat-value" id="dash-growth" style="color:var(--cyan)">—</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">
+            Total value gain minus contributions
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ TIMELINE ═══════════════════════════════════════════ -->
+    <div id="page-timeline" class="page">
+      <div class="container">
+        <div class="timeline-header">
+          <div>
+            <h1>Timeline</h1>
+            <small id="timeline-count">0 months</small>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Add Month
+          </button>
+        </div>
+        <div id="timeline-list"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Bottom nav -->
+  <nav>
+    <button class="nav-btn active" onclick="showPage('dashboard', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      </svg>
+      Dashboard
+    </button>
+    <button class="nav-btn" onclick="showPage('timeline', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <path d="M16 2v4M8 2v4M3 10h18"/>
+        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
+      </svg>
+      Timeline
+    </button>
+  </nav>
+
+</div>
+
+<!-- ══ MODAL ══════════════════════════════════════════════════ -->
+<div class="overlay hidden" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"><div></div></div>
+    <div class="modal-header">
+      <h2 id="modal-title">Add Month</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="label" for="f-month">Month</label>
+        <input type="month" id="f-month" />
+      </div>
+      <div class="field">
+        <label class="label" for="f-portfolio">Actual Portfolio Value ($)</label>
+        <input type="number" id="f-portfolio" placeholder="e.g. 115000" min="0" />
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label" for="f-planned">Planned Contribution</label>
+          <input type="number" id="f-planned" placeholder="0" min="0" />
+        </div>
+        <div class="field">
+          <label class="label" for="f-actual-c">Actual Contribution</label>
+          <input type="number" id="f-actual-c" placeholder="0" min="0" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="modal-delete-btn" onclick="deleteMonth()" style="display:none">Delete</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveMonth()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="hidden"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════════════
+
+const KEY = 'portfolio_v2'
+
+const SEED = {
+  startValue: 100000,
+  months: [
+    { month:"2025-11", actualPortfolio:100000, plannedContribution:4000,  actualContribution:3800 },
+    { month:"2025-12", actualPortfolio:107200, plannedContribution:8000,  actualContribution:9200 },
+    { month:"2026-01", actualPortfolio:114800, plannedContribution:5000,  actualContribution:5000 },
+    { month:"2026-02", actualPortfolio:121500, plannedContribution:5000,  actualContribution:4200 },
+    { month:"2026-03", actualPortfolio:130100, plannedContribution:14000, actualContribution:14000 },
+  ]
+}
+
+function loadData() {
+  try { const r = localStorage.getItem(KEY); if(r) return JSON.parse(r) } catch(_) {}
+  return JSON.parse(JSON.stringify(SEED))
+}
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(state))
+}
+
+let state = loadData()
+
+// ═══════════════════════════════════════════════════════════════
+//  CALC
+// ═══════════════════════════════════════════════════════════════
+
+function fmt(v) {
+  if(v==null||isNaN(v)) return '—'
+  return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(v)
+}
+function fmtCompact(v) {
+  if(v==null) return '—'
+  const a=Math.abs(v), s=v<0?'-':''
+  if(a>=1e6) return s+'$'+(a/1e6).toFixed(2)+'M'
+  if(a>=1e3) return s+'$'+(a/1e3).toFixed(1)+'K'
+  return s+'$'+Math.round(a)
+}
+function fmtMonth(str) {
+  try {
+    const [y,m]=str.split('-')
+    return new Date(+y,+m-1,1).toLocaleString('en-US',{month:'short',year:'numeric'})
+  } catch(_) { return str }
+}
+
+// Target(t) = Target(t-1) * (1+rate) + plannedContribution(t)
+function targets(startValue, months, rate) {
+  const out=[]; let prev=startValue
+  for(let i=0;i<months.length;i++){
+    const c=months[i].plannedContribution||0
+    const t = i===0 ? startValue+c : prev*(1+rate)+c
+    out.push({month:months[i].month, target:Math.round(t)})
+    prev=t
+  }
+  return out
+}
+
+function sorted() {
+  return [...state.months].sort((a,b)=>a.month.localeCompare(b.month))
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CHART
+// ═══════════════════════════════════════════════════════════════
+
+function buildChart() {
+  const ms = sorted()
+  const canvas = document.getElementById('main-chart')
+  const wrap   = canvas.parentElement
+  if(!ms.length) return
+
+  const dpr = window.devicePixelRatio || 1
+  const W   = wrap.clientWidth  || 320
+  const H   = wrap.clientHeight || 220
+  canvas.width  = W * dpr
+  canvas.height = H * dpr
+  canvas.style.width  = W + 'px'
+  canvas.style.height = H + 'px'
+
+  const ctx2 = canvas.getContext('2d')
+  ctx2.scale(dpr, dpr)
+  ctx2.clearRect(0,0,W,H)
+
+  const t2 = targets(state.startValue, ms, 0.02)
+  const t3 = targets(state.startValue, ms, 0.03)
+  const t4 = targets(state.startValue, ms, 0.04)
+
+  const actualVals = ms.map(m => m.actualPortfolio ?? null)
+  const d2 = t2.map(t=>t.target)
+  const d3 = t3.map(t=>t.target)
+  const d4 = t4.map(t=>t.target)
+
+  const padL=58, padR=14, padT=24, padB=38
+  const cW = W - padL - padR
+  const cH = H - padT - padB
+  const n  = ms.length
+
+  const allVals = [...actualVals.filter(v=>v!=null), ...d2, ...d3, ...d4]
+  const minV = Math.min(...allVals) * 0.97
+  const maxV = Math.max(...allVals) * 1.02
+
+  const xOf = i => padL + (i / Math.max(n-1,1)) * cW
+  const yOf = v => padT + cH - ((v - minV) / (maxV - minV)) * cH
+
+  // grid
+  ctx2.strokeStyle = 'rgba(255,255,255,0.04)'
+  ctx2.lineWidth = 1
+  for(let i=0;i<=4;i++){
+    const y = padT + (i/4)*cH
+    ctx2.beginPath(); ctx2.moveTo(padL,y); ctx2.lineTo(padL+cW,y); ctx2.stroke()
+  }
+
+  // y labels
+  ctx2.fillStyle = 'rgba(255,255,255,0.28)'
+  ctx2.font = '9px JetBrains Mono, monospace'
+  ctx2.textAlign = 'right'
+  for(let i=0;i<=4;i++){
+    const v = minV + ((4-i)/4)*(maxV-minV)
+    const y = padT + (i/4)*cH
+    ctx2.fillText(fmtCompact(v), padL-6, y+3)
+  }
+
+  // x labels
+  ctx2.textAlign = 'center'
+  ctx2.fillStyle = 'rgba(255,255,255,0.28)'
+  ctx2.font = '9px JetBrains Mono, monospace'
+  ms.forEach((m,i)=>{
+    if(n<=6 || i===0 || i===n-1 || i%(Math.ceil(n/4))===0){
+      const parts = fmtMonth(m.month).split(' ')
+      ctx2.fillText(parts[0], xOf(i), H-padB+13)
+      ctx2.fillText(parts[1]||'', xOf(i), H-padB+24)
+    }
+  })
+
+  function drawLine(data, color, dash) {
+    ctx2.strokeStyle = color
+    ctx2.lineWidth = 1.5
+    ctx2.setLineDash(dash||[])
+    ctx2.beginPath()
+    let started = false
+    data.forEach((v,i)=>{
+      if(v==null) return
+      const x=xOf(i), y=yOf(v)
+      if(!started){ctx2.moveTo(x,y);started=true}else ctx2.lineTo(x,y)
+    })
+    ctx2.stroke()
+    ctx2.setLineDash([])
+  }
+
+  drawLine(d2, 'rgba(103,232,249,0.45)', [5,4])
+  drawLine(d3, 'rgba(245,158,11,0.4)',   [5,4])
+  drawLine(d4, 'rgba(167,139,250,0.45)', [5,4])
+
+  // actual fill
+  const af = actualVals.map((v,i)=>v!=null?{v,i}:null).filter(Boolean)
+  if(af.length>=2){
+    ctx2.beginPath()
+    ctx2.moveTo(xOf(af[0].i), yOf(af[0].v))
+    af.forEach(p=>ctx2.lineTo(xOf(p.i), yOf(p.v)))
+    ctx2.lineTo(xOf(af[af.length-1].i), padT+cH)
+    ctx2.lineTo(xOf(af[0].i), padT+cH)
+    ctx2.closePath()
+    ctx2.fillStyle = 'rgba(245,158,11,0.07)'
+    ctx2.fill()
+  }
+
+  // actual line
+  drawLine(actualVals, '#f59e0b', [])
+  ctx2.lineWidth = 2.5
+  drawLine(actualVals, '#f59e0b', [])
+
+  // dots
+  actualVals.forEach((v,i)=>{
+    if(v==null) return
+    ctx2.beginPath(); ctx2.arc(xOf(i),yOf(v),4,0,Math.PI*2)
+    ctx2.fillStyle='#09090f'; ctx2.fill()
+    ctx2.beginPath(); ctx2.arc(xOf(i),yOf(v),3,0,Math.PI*2)
+    ctx2.fillStyle='#f59e0b'; ctx2.fill()
+  })
+
+  // legend
+  const legs=[
+    {l:'Actual',c:'#f59e0b',d:false},
+    {l:'2%',c:'rgba(103,232,249,0.8)',d:true},
+    {l:'3%',c:'rgba(245,158,11,0.7)',d:true},
+    {l:'4%',c:'rgba(167,139,250,0.8)',d:true},
+  ]
+  let lx=padL
+  ctx2.font='9px JetBrains Mono, monospace'
+  ctx2.textAlign='left'
+  legs.forEach(lg=>{
+    ctx2.strokeStyle=lg.c; ctx2.lineWidth=lg.d?1.5:2.5
+    ctx2.setLineDash(lg.d?[4,3]:[])
+    ctx2.beginPath(); ctx2.moveTo(lx,10); ctx2.lineTo(lx+14,10); ctx2.stroke()
+    ctx2.setLineDash([])
+    ctx2.fillStyle='rgba(255,255,255,0.4)'
+    ctx2.fillText(lg.l, lx+18, 14)
+    lx += ctx2.measureText(lg.l).width + 30
+  })
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DASHBOARD RENDER
+// ═══════════════════════════════════════════════════════════════
+
+function renderDashboard() {
+  const ms = sorted()
+  const tracked = ms.filter(m=>m.actualPortfolio!=null)
+  const last = tracked[tracked.length-1]
+
+  // Value
+  document.getElementById('dash-value').textContent = last ? fmt(last.actualPortfolio) : '—'
+  document.getElementById('dash-month').textContent = last ? fmtMonth(last.month) : '—'
+
+  // Gap vs 3%
+  if(last) {
+    const t3 = targets(state.startValue, ms, 0.03)
+    const target = t3.find(t=>t.month===last.month)?.target
+    const gap = target!=null ? last.actualPortfolio - target : null
+    const pct = gap!=null && target ? ((gap/target)*100).toFixed(1) : null
+
+    const badge = document.getElementById('dash-gap-badge')
+    const gapVal = document.getElementById('dash-gap-val')
+    const gapSub = document.getElementById('dash-gap-sub')
+    const gapIcon = document.getElementById('dash-gap-icon')
+
+    if(gap!=null) {
+      const ahead = gap>0, behind = gap<0
+      badge.className = 'gap-badge ' + (ahead?'ahead':behind?'behind':'flat')
+      badge.textContent = (gap>=0?'+':'') + fmt(gap)
+      gapVal.textContent = (gap>=0?'+':'') + fmt(gap)
+      gapVal.style.color = ahead ? 'var(--green)' : behind ? 'var(--red)' : 'var(--muted)'
+      gapSub.textContent = `${gap>=0?'+':''}${pct}% · target ${fmt(target)}`
+      gapIcon.textContent = ahead ? '↑' : behind ? '↓' : '→'
+    }
+  }
+
+  // Stats
+  const totPlanned = state.months.reduce((s,m)=>s+(m.plannedContribution||0),0)
+  const totActual  = state.months.reduce((s,m)=>s+(m.actualContribution||0),0)
+  document.getElementById('dash-planned').textContent = fmt(totPlanned)
+  document.getElementById('dash-actual').textContent  = fmt(totActual)
+
+  // Growth
+  const growth = last ? last.actualPortfolio - state.startValue - totActual : null
+  document.getElementById('dash-growth').textContent = growth!=null ? fmt(growth) : '—'
+
+  buildChart()
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TIMELINE RENDER
+// ═══════════════════════════════════════════════════════════════
+
+function renderTimeline() {
+  const ms = sorted()
+  const t3 = targets(state.startValue, ms, 0.03)
+
+  document.getElementById('timeline-count').textContent =
+    ms.length + ' month' + (ms.length!==1?'s':'') + ' tracked'
+
+  const list = document.getElementById('timeline-list')
+
+  if(!ms.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+        No months yet.<br>Tap <strong>Add Month</strong> to get started.
+      </div>`
+    return
+  }
+
+  list.innerHTML = ms.map((m,i) => {
+    const target = t3[i]?.target
+    const gap    = m.actualPortfolio!=null && target!=null ? m.actualPortfolio - target : null
+    const gapAhead  = gap!=null && gap>0
+    const gapBehind = gap!=null && gap<0
+    const gapColor  = gapAhead ? 'c-green' : gapBehind ? 'c-red' : 'c-muted'
+    const gapText   = gap!=null ? (gap>=0?'+':'')+fmt(gap) : '—'
+
+    const acColor = (m.actualContribution||0) >= (m.plannedContribution||0) ? 'c-green' : 'c-amber'
+
+    return `
+    <div class="month-row" onclick="openModal('${m.month}')">
+      <div class="month-row-top">
+        <span class="month-name">${fmtMonth(m.month)}</span>
+        <span class="month-portfolio">${m.actualPortfolio!=null ? fmt(m.actualPortfolio) : '—'}</span>
+      </div>
+      <div class="month-grid">
+        <div>
+          <div class="month-stat-label">Planned</div>
+          <div class="month-stat-val c-muted">${fmt(m.plannedContribution)}</div>
+        </div>
+        <div>
+          <div class="month-stat-label">Actual</div>
+          <div class="month-stat-val ${acColor}">${fmt(m.actualContribution)}</div>
+        </div>
+        <div>
+          <div class="month-stat-label">vs 3%</div>
+          <div class="month-stat-val ${gapColor}">${gapText}</div>
+        </div>
+      </div>
+    </div>`
+  }).join('')
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════════════════════════
+
+let editingMonth = null
+
+function openModal(monthStr) {
+  editingMonth = monthStr || null
+  const overlay = document.getElementById('modal-overlay')
+  const deleteBtn = document.getElementById('modal-delete-btn')
+  const title = document.getElementById('modal-title')
+
+  if(editingMonth) {
+    const m = state.months.find(x=>x.month===editingMonth)
+    title.textContent = 'Edit Month'
+    document.getElementById('f-month').value = editingMonth
+    document.getElementById('f-month').disabled = true
+    document.getElementById('f-portfolio').value = m?.actualPortfolio ?? ''
+    document.getElementById('f-planned').value   = m?.plannedContribution ?? ''
+    document.getElementById('f-actual-c').value  = m?.actualContribution ?? ''
+    deleteBtn.style.display = 'flex'
+  } else {
+    title.textContent = 'Add Month'
+    document.getElementById('f-month').value = ''
+    document.getElementById('f-month').disabled = false
+    document.getElementById('f-portfolio').value = ''
+    document.getElementById('f-planned').value   = ''
+    document.getElementById('f-actual-c').value  = ''
+    deleteBtn.style.display = 'none'
+  }
+
+  overlay.classList.remove('hidden')
+  document.body.style.overflow = 'hidden'
+
+  setTimeout(()=>{ document.getElementById('f-month').focus?.() }, 100)
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden')
+  document.body.style.overflow = ''
+  editingMonth = null
+}
+
+function handleOverlayClick(e) {
+  if(e.target === document.getElementById('modal-overlay')) closeModal()
+}
+
+function saveMonth() {
+  const month = document.getElementById('f-month').value
+  if(!month) { toast('Please select a month'); return }
+
+  const portfolio = document.getElementById('f-portfolio').value
+  const planned   = document.getElementById('f-planned').value
+  const actualC   = document.getElementById('f-actual-c').value
+
+  const row = {
+    month,
+    actualPortfolio:     portfolio !== '' ? +portfolio : null,
+    plannedContribution: planned   !== '' ? +planned   : 0,
+    actualContribution:  actualC   !== '' ? +actualC   : 0,
+  }
+
+  const existing = state.months.findIndex(m=>m.month===month)
+  if(existing >= 0) {
+    state.months[existing] = row
+  } else {
+    state.months.push(row)
+  }
+
+  save()
+  closeModal()
+  render()
+  toast('Saved ✓')
+}
+
+function deleteMonth() {
+  if(!editingMonth) return
+  state.months = state.months.filter(m=>m.month!==editingMonth)
+  save()
+  closeModal()
+  render()
+  toast('Deleted')
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'))
+  document.getElementById('page-'+id).classList.add('active')
+  btn.classList.add('active')
+  if(id==='dashboard') renderDashboard()
+  if(id==='timeline')  renderTimeline()
+}
+
+function render() {
+  const activePage = document.querySelector('.page.active')?.id?.replace('page-','')
+  if(!activePage || activePage==='dashboard') renderDashboard()
+  if(activePage==='timeline') renderTimeline()
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════════════
+
+let toastTimer = null
+function toast(msg) {
+  const el = document.getElementById('toast')
+  el.textContent = msg
+  el.classList.remove('hidden')
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(()=>el.classList.add('hidden'), 2000)
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+
+renderDashboard()
+</script>
+</body>
+</html>
