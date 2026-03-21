@@ -847,8 +847,33 @@ input[type="range"]::-moz-range-thumb{
 
   </div>
 
+  <!-- TWR CARD -->
+  <div class="card cp sg" id="twr-card">
+    <span class="lbl" style="margin-bottom:14px">Time-Weighted Return</span>
+    <div class="g3">
+      <div>
+        <div class="slbl">Bu Ay</div>
+        <div class="sval" id="twr-monthly">—</div>
+        <div class="ssub">son ay getirisi</div>
+      </div>
+      <div>
+        <div class="slbl">YTD</div>
+        <div class="sval" id="twr-ytd">—</div>
+        <div class="ssub" id="twr-ytd-lbl">bu yıl</div>
+      </div>
+      <div>
+        <div class="slbl">Kümülatif</div>
+        <div class="sval" id="twr-cum">—</div>
+        <div class="ssub">tüm dönem</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--bd2);font-size:11px;color:var(--mu);line-height:1.5">
+      Katkıların zamanlamasından bağımsız, saf piyasa performansı. Her ayın getirisi zincir çarpımıyla birleştirilir.
+    </div>
+  </div>
+
   <!-- CHART CARD -->
-  <div class="card cp sg-lg" style="box-shadow:0 4px 40px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.04)">
+  <div class="card cp sg-lg" style="box-shadow:0 2px 12px rgba(140,110,80,0.10),inset 0 1px 0 rgba(255,255,255,0.7)">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
       <div>
         <span class="lbl" style="margin-bottom:4px">Trajectory</span>
@@ -896,8 +921,8 @@ input[type="range"]::-moz-range-thumb{
       <div class="sb-g" id="sb-g" style="width:50%"></div>
     </div>
     <div style="display:flex;justify-content:space-between;margin-top:8px">
-      <span style="font-size:10px;color:rgba(255,255,255,0.25)">◼ Contributions</span>
-      <span style="font-size:10px;color:rgba(255,255,255,0.25)">Returns ◼</span>
+      <span style="font-size:10px;color:var(--mu);font-weight:700">◼ Contributions</span>
+      <span style="font-size:10px;color:var(--mu);font-weight:700">Returns ◼</span>
     </div>
   </div>
 
@@ -1339,7 +1364,7 @@ input[type="range"]::-moz-range-thumb{
           <input type="number" id="set-startval" min="0" step="100"
             style="width:110px;background:rgba(255,255,255,0.75);border:1px solid var(--bd);border-radius:9px;padding:7px 10px;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;text-align:right"
             onfocus="this.style.borderColor='rgba(245,166,35,.5)'"
-            onblur="this.style.borderColor='rgba(255,255,255,.1)'"/>
+            onblur="this.style.borderColor='var(--bd)'"/>
           <button class="set-btn set-btn-gold" onclick="saveStartValue()">Save</button>
         </div>
       </div>
@@ -1651,10 +1676,12 @@ function fmtMo(str){
 
 // ─── CALC ─────────────────────────────────────────────────────
 function genT(sv,months,rate){
+  // sv is plotted as the origin point (index 0).
+  // For each month the target = prev * (1+rate) + plannedContribution.
   const out=[];let prev=sv
   for(let i=0;i<months.length;i++){
     const c=months[i].plannedContribution||0
-    const t=i===0?sv+c:prev*(1+rate)+c
+    const t=prev*(1+rate)+c
     out.push({month:months[i].month,target:Math.round(t)})
     prev=t
   }
@@ -1747,12 +1774,38 @@ function derive(){
   const monthlyFromContrib=last.actualContribution||0
   const monthlyFromGrowth=monthlyChange!=null?monthlyChange-monthlyFromContrib:null
   const rateNeeded=gap3!=null&&gap3<0&&msEta&&msEta>0?((tgt3-last.actualPortfolio)/last.actualPortfolio/msEta*100):null
+
+  // ── TWR (Time-Weighted Return) ────────────────────────────────
+  // Sub-period return: r_i = investmentPL / startPortfolio
+  // Contribution assumed end-of-month → doesn't affect sub-period calc
+  // startPortfolio for each month: m.startPortfolio ?? prev.actualPortfolio
+  const currentYear = last.month.slice(0,4)
+  let twrCumFactor = 1       // all months
+  let twrYtdFactor = 1       // current year only
+  let twrMonthly   = null    // last month only
+
+  tracked.forEach((m, i) => {
+    const sp = m.startPortfolio != null
+      ? m.startPortfolio
+      : (i > 0 ? tracked[i-1].actualPortfolio : null)
+    if (sp == null || sp === 0) return
+    const pl = m.actualPortfolio - sp - (m.actualContribution || 0)
+    const r  = pl / sp
+    twrCumFactor *= (1 + r)
+    if (m.month.slice(0,4) === currentYear) twrYtdFactor *= (1 + r)
+    if (i === tracked.length - 1) twrMonthly = r * 100
+  })
+
+  const twrCumulative = (twrCumFactor - 1) * 100
+  const twrYtd        = (twrYtdFactor - 1) * 100
+
   return{last,ms,t2,t3,t4,
     tgt2,tgt3,tgt4,gap2,gap3,gap4,gapPct,
     totP,totA,discPct,investGrowth,totalGain,cPct,
     onTrack,nextMs,msPct,msRem,msEta,
     mom3,mom6,monthlyChange,monthlyFromContrib,monthlyFromGrowth,
-    rateNeeded,prevLast}
+    rateNeeded,prevLast,
+    twrMonthly,twrYtd,twrCumulative}
 }
 
 // ─── CHART ────────────────────────────────────────────────────
@@ -1773,35 +1826,60 @@ function buildChart(){
   const t4=genT(state.startValue,ms,0.04)
   const av=ms.map(m=>m.actualPortfolio??null)
   const d2=t2.map(t=>t.target),d3=t3.map(t=>t.target),d4=t4.map(t=>t.target)
-  const n=ms.length
+
+  // Prepend startValue as the origin point (index 0) for all series
+  const avPlot=[state.startValue,...av]
+  const d2Plot=[state.startValue,...d2]
+  const d3Plot=[state.startValue,...d3]
+  const d4Plot=[state.startValue,...d4]
+  // Labels: one synthetic "start" label + one per month
+  const labelsPlot=[null,...ms]   // null = startValue origin, no month string needed
+  const nPlot=avPlot.length
 
   const padL=56,padR=12,padT=26,padB=42
   const cW=W-padL-padR,cH=H-padT-padB
-  const allV=[...av.filter(v=>v!=null),...d2,...d3,...d4]
+  const allV=[...avPlot.filter(v=>v!=null),...d2Plot,...d3Plot,...d4Plot]
   const minV=Math.min(...allV)*0.974,maxV=Math.max(...allV)*1.023
-  const xOf=i=>padL+(i/Math.max(n-1,1))*cW
+  const xOf=i=>padL+(i/Math.max(nPlot-1,1))*cW
   const yOf=v=>padT+cH-((v-minV)/(maxV-minV))*cH
 
+  // ── Canvas arka planı ─────────────────────────────────────────
+  C.fillStyle='#1e1a14'
+  C.roundRect(0,0,W,H,12)
+  C.fill()
+
   // grid
-  C.strokeStyle='rgba(255,255,255,0.03)';C.lineWidth=1
+  C.strokeStyle='rgba(255,255,255,0.07)';C.lineWidth=1
   for(let i=0;i<=4;i++){const y=padT+(i/4)*cH;C.beginPath();C.moveTo(padL,y);C.lineTo(padL+cW,y);C.stroke()}
-  // faint vertical grid
-  if(n>1)for(let i=0;i<n;i++){
-    C.strokeStyle='rgba(255,255,255,0.02)';C.lineWidth=1
+  for(let i=0;i<nPlot;i++){
+    C.strokeStyle='rgba(255,255,255,0.04)';C.lineWidth=1
     C.beginPath();C.moveTo(xOf(i),padT);C.lineTo(xOf(i),padT+cH);C.stroke()
   }
 
   // y labels
-  C.fillStyle='rgba(255,255,255,0.22)';C.font='9px JetBrains Mono,monospace';C.textAlign='right'
+  C.fillStyle='rgba(255,240,210,0.55)';C.font='bold 9px JetBrains Mono,monospace';C.textAlign='right'
   for(let i=0;i<=4;i++){const v=minV+((4-i)/4)*(maxV-minV);C.fillText(fmtC(v),padL-8,padT+(i/4)*cH+3.5)}
 
-  // x labels
-  C.textAlign='center';C.fillStyle='rgba(255,255,255,0.22)';C.font='9px JetBrains Mono,monospace'
-  ms.forEach((m,i)=>{
-    if(n<=6||i===0||i===n-1||i%(Math.ceil(n/4))===0){
-      const[mo,yr]=fmtMo(m.month).split(' ')
-      C.fillText(mo,xOf(i),H-padB+14);C.fillText(yr,xOf(i),H-padB+25)
+  // x labels — format: "01 Nov 25"
+  C.textAlign='center';C.fillStyle='rgba(255,240,210,0.55)';C.font='bold 9px JetBrains Mono,monospace'
+  labelsPlot.forEach((m,i)=>{
+    const show = nPlot<=7 || i===0 || i===nPlot-1 || i%(Math.ceil((nPlot-1)/4))===0
+    if(!show) return
+    let lbl
+    if(m===null){
+      // Origin point: derive "01 [Mon] [YY]" from first month minus one
+      const first=ms[0]?.month
+      if(first){
+        const [y,mo]=first.split('-').map(Number)
+        const d=new Date(y,mo-2,1) // one month before first entry
+        lbl='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)
+      } else { lbl='' }
+    } else {
+      const [y,mo]=m.month.split('-').map(Number)
+      const d=new Date(y,mo-1,1)
+      lbl='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(y).slice(2)
     }
+    C.fillText(lbl,xOf(i),H-padB+14)
   })
 
   function line(data,color,dash,width){
@@ -1812,46 +1890,45 @@ function buildChart(){
     C.stroke();C.setLineDash([])
   }
 
-  // dashed targets (softer)
-  line(d2,'rgba(77,216,240,0.28)',[6,4])
-  line(d3,'rgba(245,166,35,0.28)', [6,4])
-  line(d4,'rgba(176,143,255,0.28)',[6,4])
+  // dashed targets — daha görünür
+  line(d2Plot,'rgba(110,200,240,0.55)',[6,4],1.5)
+  line(d3Plot,'rgba(245,180,60,0.55)', [6,4],1.5)
+  line(d4Plot,'rgba(190,160,255,0.55)',[6,4],1.5)
 
   // actual area gradient
-  const af=av.map((v,i)=>v!=null?{v,i}:null).filter(Boolean)
+  const af=avPlot.map((v,i)=>v!=null?{v,i}:null).filter(Boolean)
   if(af.length>=2){
     C.beginPath()
     af.forEach(p=>C.lineTo(xOf(p.i),yOf(p.v)))
     C.lineTo(xOf(af[af.length-1].i),padT+cH);C.lineTo(xOf(af[0].i),padT+cH);C.closePath()
     const gr=C.createLinearGradient(0,padT,0,padT+cH)
-    gr.addColorStop(0,'rgba(245,166,35,0.16)');gr.addColorStop(0.6,'rgba(245,166,35,0.04)');gr.addColorStop(1,'transparent')
+    gr.addColorStop(0,'rgba(245,166,35,0.22)');gr.addColorStop(0.6,'rgba(245,166,35,0.06)');gr.addColorStop(1,'transparent')
     C.fillStyle=gr;C.fill()
   }
 
-  // actual line — two passes for glow
-  C.save();C.shadowColor='rgba(245,166,35,0.6)';C.shadowBlur=14
-  line(av,'#f5a623',[],2.5);C.restore()
-  line(av,'#f5a623',[],2.5)
+  // actual line
+  C.save();C.shadowColor='rgba(245,166,35,0.7)';C.shadowBlur=10
+  line(avPlot,'#f5a623',[],2.5);C.restore()
 
   // dots
-  av.forEach((v,i)=>{
+  avPlot.forEach((v,i)=>{
     if(v==null)return
     const x=xOf(i),y=yOf(v)
-    const isLast=(i===n-1||av.slice(i+1).every(w=>w==null))
+    const isLast=(i===nPlot-1||avPlot.slice(i+1).every(w=>w==null))
     C.save()
-    if(isLast){C.shadowColor='rgba(245,166,35,0.9)';C.shadowBlur=16}
-    C.beginPath();C.arc(x,y,isLast?6:3.5,0,Math.PI*2);C.fillStyle='#060610';C.fill()
+    if(isLast){C.shadowColor='rgba(245,166,35,0.9)';C.shadowBlur=14}
+    C.beginPath();C.arc(x,y,isLast?6:3.5,0,Math.PI*2);C.fillStyle='#1e1a14';C.fill()
     C.beginPath();C.arc(x,y,isLast?4.5:2.5,0,Math.PI*2);C.fillStyle='#f5a623';C.fill()
     C.restore()
   })
 
   // legend
-  const legs=[{l:'Actual',c:'rgba(245,166,35,0.95)',d:false},{l:'2%',c:'rgba(77,216,240,0.65)',d:true},{l:'3%',c:'rgba(245,166,35,0.55)',d:true},{l:'4%',c:'rgba(176,143,255,0.65)',d:true}]
-  let lx=padL;C.font='9px JetBrains Mono,monospace';C.textAlign='left'
+  const legs=[{l:'Actual',c:'rgba(245,166,35,1)',d:false},{l:'2%',c:'rgba(110,200,240,0.9)',d:true},{l:'3%',c:'rgba(245,180,60,0.9)',d:true},{l:'4%',c:'rgba(190,160,255,0.9)',d:true}]
+  let lx=padL;C.font='bold 9px JetBrains Mono,monospace';C.textAlign='left'
   legs.forEach(lg=>{
-    C.strokeStyle=lg.c;C.lineWidth=lg.d?1.2:2.2;C.setLineDash(lg.d?[4,3]:[])
+    C.strokeStyle=lg.c;C.lineWidth=lg.d?1.5:2.2;C.setLineDash(lg.d?[4,3]:[])
     C.beginPath();C.moveTo(lx,11);C.lineTo(lx+14,11);C.stroke();C.setLineDash([])
-    C.fillStyle='rgba(255,255,255,0.34)';C.fillText(lg.l,lx+18,15)
+    C.fillStyle='rgba(255,240,210,0.75)';C.fillText(lg.l,lx+18,15)
     lx+=C.measureText(lg.l).width+32
   })
 }
@@ -1864,8 +1941,26 @@ function renderDashboard(){
         totP,totA,discPct,investGrowth,totalGain,cPct,
         onTrack,nextMs,msPct,msRem,msEta,
         mom3,mom6,monthlyChange,monthlyFromContrib,monthlyFromGrowth,
-        rateNeeded,prevLast}=d
+        rateNeeded,prevLast,
+        twrMonthly,twrYtd,twrCumulative}=d
   const gap=gap3
+
+  // ── TWR Card ──────────────────────────────────────────────────
+  function fmtTwr(v){
+    if(v==null||isNaN(v)) return '—'
+    return (v>=0?'+':'')+v.toFixed(2)+'%'
+  }
+  function twrCls(v){
+    if(v==null||isNaN(v)) return ''
+    return v>0?'cg':v<0?'cr':''
+  }
+  const elM=document.getElementById('twr-monthly')
+  const elY=document.getElementById('twr-ytd')
+  const elC=document.getElementById('twr-cum')
+  elM.textContent=fmtTwr(twrMonthly); elM.className='sval '+twrCls(twrMonthly)
+  elY.textContent=fmtTwr(twrYtd);     elY.className='sval '+twrCls(twrYtd)
+  elC.textContent=fmtTwr(twrCumulative); elC.className='sval '+twrCls(twrCumulative)
+  document.getElementById('twr-ytd-lbl').textContent=last.month.slice(0,4)+' yılı'
 
   // ── Hero ──────────────────────────────────────────────────────
   document.getElementById('dash-value').textContent=fmt(last.actualPortfolio)
@@ -2059,6 +2154,19 @@ function renderTimeline(){
       ? `${fmt(perf.startPortfolio)} → ${fmt(m.actualPortfolio)}`
       : ''
 
+  // ── TWR kümülatif bu aya kadar ─────────────────────────────────
+  // Zincir: tüm tracked ayların sub-period return çarpımı, bu aya kadar
+  let twrToHere = null
+  if (perf.returnPct !== null) {
+    let factor = 1
+    for (let k = 0; k <= i; k++) {
+      const mk = ms[k], prevK = k > 0 ? ms[k-1] : null
+      const pk = calcMonthPerf(mk, prevK)
+      if (pk.returnPct !== null) factor *= (1 + pk.returnPct / 100)
+    }
+    twrToHere = (factor - 1) * 100
+  }
+
     // ── Block 1: Piyasa Performansı ─────────────────────────────
     let perfHTML = ''
     if (perf.investmentPL !== null) {
@@ -2066,28 +2174,35 @@ function renderTimeline(){
       const plColor = perf.investmentPL >= 0 ? 'color:var(--green)' : 'color:var(--red)'
       const pctSign = perf.returnPct >= 0 ? '+' : ''
       const pctStr  = perf.returnPct != null ? `${pctSign}${perf.returnPct.toFixed(2)}%` : '—'
-      // Benchmark vs return
       const bmarkDiff = perf.returnPct != null ? perf.returnPct - 3 : null
       const bmarkSign = bmarkDiff!=null && bmarkDiff>=0 ? '+' : ''
       const bmarkColor = bmarkDiff==null ? '' : bmarkDiff>=0 ? 'color:var(--green)' : 'color:var(--red)'
       const bmarkStr = bmarkDiff!=null ? `${bmarkSign}${bmarkDiff.toFixed(2)}%` : '—'
+      const cumSign  = twrToHere!=null && twrToHere>=0 ? '+' : ''
+      const cumColor = twrToHere==null ? '' : twrToHere>=0 ? 'color:var(--green)' : 'color:var(--red)'
+      const cumStr   = twrToHere!=null ? `${cumSign}${twrToHere.toFixed(2)}%` : '—'
 
       perfHTML = `
       <div class="mr-perf-block">
         <div class="mr-perf-row">
-          <span class="mr-perf-label">Piyasa Getirisi</span>
+          <span class="mr-perf-label">Piyasa Getirisi (TWR)</span>
           <span class="mr-perf-val" style="${plColor}">${plSign}${fmt(perf.investmentPL)} &nbsp;(${pctStr})</span>
         </div>
       </div>
       <div class="mr-bench-block">
         <div class="mr-bench-item">
-          <span class="mr-bench-lbl">Getirim</span>
+          <span class="mr-bench-lbl">Aylık TWR</span>
           <span class="mr-bench-val" style="${plColor}">${pctStr}</span>
         </div>
         <span class="mr-bench-sep">vs</span>
         <div class="mr-bench-item">
           <span class="mr-bench-lbl">Benchmark</span>
-          <span class="mr-bench-val" style="color:var(--sand)">+3.00%</span>
+          <span class="mr-bench-val" style="color:var(--lavender)">+3.00%</span>
+        </div>
+        <span class="mr-bench-sep">·</span>
+        <div class="mr-bench-item">
+          <span class="mr-bench-lbl">Kümülatif</span>
+          <span class="mr-bench-val" style="${cumColor}">${cumStr}</span>
         </div>
         <span class="mr-bench-sep">→</span>
         <div class="mr-bench-item">
@@ -2372,7 +2487,7 @@ function updateProjection(){
       <span class="cr-label">Final Value (${years}yr)</span>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="cr-base">${fmt(finalBase)}</span>
-        <span style="color:rgba(255,255,255,0.2);font-size:10px">→</span>
+        <span style="color:var(--mu);font-size:10px">→</span>
         <span class="cr-custom">${fmt(finalCustom)}</span>
         <span class="cr-diff ${diffCls}">${diffSign}${fmtC(diffFinal)}</span>
       </div>
@@ -2388,7 +2503,7 @@ function updateProjection(){
       <span class="cr-label">Investment Returns</span>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="cr-base">${fmt(growthBase)}</span>
-        <span style="color:rgba(255,255,255,0.2);font-size:10px">→</span>
+        <span style="color:var(--mu);font-size:10px">→</span>
         <span class="cr-custom">${fmt(growthCustom)}</span>
         <span class="cr-diff ${gdCls}">${growthDiff>=0?'+':''}${fmtC(growthDiff)}</span>
       </div>
@@ -2408,7 +2523,7 @@ function updateProjection(){
         <span class="cr-label">$500K milestone</span>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="cr-base">${bLabel}</span>
-          <span style="color:rgba(255,255,255,0.2);font-size:10px">→</span>
+          <span style="color:var(--mu);font-size:10px">→</span>
           <span class="cr-custom">${cLabel}</span>
           <span class="cr-diff ${mCls}">${mTxt}</span>
         </div>
@@ -2506,6 +2621,8 @@ function updateProjection(){
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px'
   const C = canvas.getContext('2d')
   C.scale(dpr, dpr); C.clearRect(0, 0, W, H)
+  // Dark canvas background
+  C.fillStyle='#1e1a14'; C.fillRect(0,0,W,H)
 
   const step  = Math.max(1, Math.floor(months / 50))
   const xData = []
@@ -2522,19 +2639,19 @@ function updateProjection(){
   const yOf  = v => padT + cH - ((v - minV) / (maxV - minV)) * cH
 
   // Grid
-  C.strokeStyle = 'rgba(255,255,255,0.03)'; C.lineWidth = 1
+  C.strokeStyle = 'rgba(255,255,255,0.07)'; C.lineWidth = 1
   for(let i = 0; i <= 4; i++){
     const y = padT + (i/4) * cH
     C.beginPath(); C.moveTo(padL, y); C.lineTo(padL + cW, y); C.stroke()
   }
   // Y labels
-  C.fillStyle = 'rgba(255,255,255,0.22)'; C.font = '9px JetBrains Mono,monospace'; C.textAlign = 'right'
+  C.fillStyle = 'rgba(255,240,210,0.60)'; C.font = 'bold 9px JetBrains Mono,monospace'; C.textAlign = 'right'
   for(let i = 0; i <= 4; i++){
     const v = minV + ((4-i)/4) * (maxV - minV)
     C.fillText(fmtC(v), padL - 7, padT + (i/4) * cH + 3.5)
   }
   // X labels
-  C.textAlign = 'center'; C.fillStyle = 'rgba(255,255,255,0.22)'; C.font = '9px JetBrains Mono,monospace'
+  C.textAlign = 'center'; C.fillStyle = 'rgba(255,240,210,0.60)'; C.font = 'bold 9px JetBrains Mono,monospace'
   for(let yr = 0; yr <= years; yr++){
     const tgt = yr * 12
     const xi  = xData.reduce((best, v, i) => Math.abs(v - tgt) < Math.abs(xData[best] - tgt) ? i : best, 0)
@@ -2559,19 +2676,19 @@ function updateProjection(){
   custPts.forEach((v, i) => i === 0 ? C.moveTo(xOf(i), yOf(v)) : C.lineTo(xOf(i), yOf(v)))
   C.lineTo(xOf(n-1), padT + cH); C.lineTo(xOf(0), padT + cH); C.closePath()
   const gr = C.createLinearGradient(0, padT, 0, padT + cH)
-  gr.addColorStop(0, 'rgba(46,232,154,0.1)'); gr.addColorStop(1, 'transparent')
+  gr.addColorStop(0, 'rgba(46,232,154,0.18)'); gr.addColorStop(1, 'transparent')
   C.fillStyle = gr; C.fill()
 
-  drawLine(cons,   'rgba(77,216,240,0.35)',  [5,4], 1.5)
-  drawLine(base,   'rgba(245,166,35,0.4)',   [5,4], 1.5)
-  drawLine(agg,    'rgba(176,143,255,0.35)', [5,4], 1.5)
+  drawLine(cons,   'rgba(110,200,240,0.65)',  [5,4], 1.8)
+  drawLine(base,   'rgba(245,180,60,0.65)',   [5,4], 1.8)
+  drawLine(agg,    'rgba(190,160,255,0.65)', [5,4], 1.8)
   // Custom scenario: solid bright green line
   drawLine(custom, '#2ee89a', [], 2.5, 'rgba(46,232,154,0.5)')
 
   // End dot on custom line
   const lastX = xOf(n-1), lastY = yOf(custom[custom.length-1])
   C.save(); C.shadowColor = 'rgba(46,232,154,0.8)'; C.shadowBlur = 14
-  C.beginPath(); C.arc(lastX, lastY, 5, 0, Math.PI*2); C.fillStyle = '#060610'; C.fill()
+  C.beginPath(); C.arc(lastX, lastY, 5, 0, Math.PI*2); C.fillStyle = '#1e1a14'; C.fill()
   C.beginPath(); C.arc(lastX, lastY, 3.5, 0, Math.PI*2); C.fillStyle = '#2ee89a'; C.fill()
   C.restore()
 }
@@ -2638,6 +2755,7 @@ function drawIncBarChart(canvasId, entries, valueKey, color, negColor){
   canvas.style.width=W+'px'; canvas.style.height=H+'px'
   const C = canvas.getContext('2d')
   C.scale(dpr,dpr); C.clearRect(0,0,W,H)
+  C.fillStyle='#1e1a14'; C.fillRect(0,0,W,H)
 
   if(!entries.length) return
 
@@ -2654,16 +2772,16 @@ function drawIncBarChart(canvasId, entries, valueKey, color, negColor){
   const zeroY  = hasNeg ? padT + cH*0.5 : padT+cH
 
   // Grid
-  C.strokeStyle='rgba(255,255,255,0.03)'; C.lineWidth=1
+  C.strokeStyle='rgba(255,255,255,0.07)'; C.lineWidth=1
   for(let i=0;i<=3;i++){
     const y=padT+(i/3)*cH; C.beginPath(); C.moveTo(padL,y); C.lineTo(padL+cW,y); C.stroke()
   }
   // Zero line (visible)
-  C.strokeStyle='rgba(255,255,255,0.1)'; C.lineWidth=1
+  C.strokeStyle='rgba(255,255,255,0.25)'; C.lineWidth=1
   C.beginPath(); C.moveTo(padL,zeroY); C.lineTo(padL+cW,zeroY); C.stroke()
 
   // Y labels
-  C.fillStyle='rgba(255,255,255,0.22)'; C.font='8px JetBrains Mono,monospace'; C.textAlign='right'
+  C.fillStyle='rgba(255,240,210,0.60)'; C.font='bold 8px JetBrains Mono,monospace'; C.textAlign='right'
   const labelVal = hasNeg ? maxV : maxV
   C.fillText(fmtC(labelVal), padL-4, padT+4)
   if(hasNeg) C.fillText(fmtC(-maxV), padL-4, padT+cH-2)
@@ -2695,7 +2813,7 @@ function drawIncBarChart(canvasId, entries, valueKey, color, negColor){
     C.restore()
 
     // X label
-    C.fillStyle='rgba(255,255,255,0.22)'; C.font='8px JetBrains Mono,monospace'; C.textAlign='center'
+    C.fillStyle='rgba(255,240,210,0.60)'; C.font='bold 8px JetBrains Mono,monospace'; C.textAlign='center'
     const mo = e.month.split('-')[1]
     C.fillText(mo, x+barW/2, H-padB+14)
   })
@@ -2832,11 +2950,11 @@ function renderIncome(){
       <div class="inc-row-top">
         <div>
           <div class="inc-month">${fmtMo(e.month)}</div>
-          ${e.note?`<div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:2px;font-style:italic">${e.note}</div>`:''}
+          ${e.note?`<div style="font-size:10px;color:var(--mu);margin-top:2px;font-style:italic">${e.note}</div>`:''}
         </div>
         <div style="text-align:right">
           <div class="inc-premium cgo">${fmt(e.premiumIncome)}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.28);font-family:'JetBrains Mono',monospace">premium</div>
+          <div style="font-size:10px;color:var(--mu);font-weight:700;font-family:'JetBrains Mono',monospace">premium</div>
         </div>
       </div>
       <div class="inc-grid">
@@ -2947,7 +3065,7 @@ function drawPie(canvasId, slices){
 
   if(!total){ // empty state — grey ring
     C.beginPath(); C.arc(cx,cy,r,0,Math.PI*2)
-    C.strokeStyle='rgba(255,255,255,.06)'; C.lineWidth=inner; C.stroke()
+    C.strokeStyle='rgba(255,255,255,.15)'; C.lineWidth=inner; C.stroke()
     return
   }
 
@@ -2967,9 +3085,9 @@ function drawPie(canvasId, slices){
   })
   // Donut hole
   C.beginPath(); C.arc(cx,cy,inner,0,Math.PI*2)
-  C.fillStyle='#060610'; C.fill()
+  C.fillStyle='#1e1a14'; C.fill()
   // Centre text
-  C.fillStyle='rgba(255,255,255,.8)'; C.font='bold 11px JetBrains Mono,monospace'; C.textAlign='center'; C.textBaseline='middle'
+  C.fillStyle='rgba(255,240,210,0.90)'; C.font='bold 11px JetBrains Mono,monospace'; C.textAlign='center'; C.textBaseline='middle'
   C.fillText(fmtC(total), cx, cy)
 }
 
@@ -2984,6 +3102,7 @@ function drawBrkTrend(canvasId, entries){
   canvas.style.width=W+'px'; canvas.style.height=H+'px'
   const C = canvas.getContext('2d')
   C.scale(dpr,dpr); C.clearRect(0,0,W,H)
+  C.fillStyle='#1e1a14'; C.fillRect(0,0,W,H)
   if(entries.length<1) return
 
   const keys  = ['cash','equities','optionsCollateral','other']
@@ -2995,11 +3114,11 @@ function drawBrkTrend(canvasId, entries){
   const yOf = v => padT + cH - (v/maxV)*cH
 
   // Grid
-  C.strokeStyle='rgba(255,255,255,.03)'; C.lineWidth=1
+  C.strokeStyle='rgba(255,255,255,.07)'; C.lineWidth=1
   for(let i=0;i<=3;i++){const y=padT+(i/3)*cH;C.beginPath();C.moveTo(padL,y);C.lineTo(padL+cW,y);C.stroke()}
 
   // Y labels
-  C.fillStyle='rgba(255,255,255,.22)'; C.font='8px JetBrains Mono,monospace'; C.textAlign='right'
+  C.fillStyle='rgba(255,240,210,0.60)'; C.font='bold 8px JetBrains Mono,monospace'; C.textAlign='right'
   C.fillText(fmtC(maxV), padL-4, padT+4)
   C.fillText('$0', padL-4, padT+cH)
 
@@ -3027,7 +3146,7 @@ function drawBrkTrend(canvasId, entries){
   })
 
   // X labels
-  C.fillStyle='rgba(255,255,255,.22)'; C.font='8px JetBrains Mono,monospace'; C.textAlign='center'
+  C.fillStyle='rgba(255,240,210,0.60)'; C.font='bold 8px JetBrains Mono,monospace'; C.textAlign='center'
   entries.forEach((e,i)=>{
     if(n<=6||i===0||i===n-1||i%(Math.ceil(n/4))===0)
       C.fillText(e.month.split('-')[1]+'/'+e.month.split('-')[0].slice(2), xOf(i), H-padB+14)
@@ -3185,7 +3304,7 @@ function renderBreakdown(){
       <div class="brk-row-top">
         <div>
           <div class="brk-row-month">${fmtMo(e.month)}</div>
-          ${e.note?`<div style="font-size:10px;color:rgba(255,255,255,.28);margin-top:2px;font-style:italic">${e.note}</div>`:''}
+          ${e.note?`<div style="font-size:10px;color:var(--mu);margin-top:2px;font-style:italic">${e.note}</div>`:''}
         </div>
         <div class="brk-row-total">${fmt(tot)}</div>
       </div>
