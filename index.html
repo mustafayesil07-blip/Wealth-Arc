@@ -707,6 +707,66 @@ input[type="range"]::-moz-range-thumb{
 .confirm-btns{display:flex;gap:10px}
 .confirm-btns .set-btn{flex:1;justify-content:center}
 
+/* ── TIMELINE CARD v2 ── */
+.mr-headline{
+  font-family:'JetBrains Mono',monospace;
+  font-size:20px;font-weight:500;color:white;
+  line-height:1.15;letter-spacing:-0.01em;
+}
+.mr-context{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:rgba(255,255,255,0.28);
+  margin-top:3px;letter-spacing:0.02em;
+}
+.mr-perf-block{
+  display:flex;flex-direction:column;gap:4px;
+  margin-top:11px;padding-top:11px;
+  border-top:1px solid rgba(255,255,255,0.05);
+}
+.mr-perf-row{
+  display:flex;align-items:center;justify-content:space-between;
+}
+.mr-perf-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;text-transform:uppercase;letter-spacing:0.12em;
+  color:rgba(255,255,255,0.28);
+}
+.mr-perf-val{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px;font-weight:500;
+}
+.mr-split-bar{
+  height:4px;border-radius:2px;overflow:hidden;
+  display:flex;margin:9px 0 6px;
+  background:rgba(255,255,255,0.04);
+}
+.mr-split-market{height:100%;background:var(--green);opacity:0.75;transition:width 0.6s ease}
+.mr-split-contrib{height:100%;background:var(--cyan);opacity:0.55;transition:width 0.6s ease}
+.mr-split-labels{
+  display:flex;justify-content:space-between;
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:rgba(255,255,255,0.3);
+}
+.mr-split-labels .msl-market{color:rgba(46,232,154,0.7)}
+.mr-split-labels .msl-contrib{color:rgba(77,216,240,0.6)}
+.mr-adv{
+  display:flex;gap:14px;margin-top:9px;padding-top:9px;
+  border-top:1px solid rgba(255,255,255,0.04);
+  flex-wrap:wrap;
+}
+.mr-adv-item{
+  display:flex;flex-direction:column;gap:2px;
+}
+.mr-adv-lbl{
+  font-family:'JetBrains Mono',monospace;font-size:8px;
+  text-transform:uppercase;letter-spacing:0.12em;
+  color:rgba(255,255,255,0.22);
+}
+.mr-adv-val{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:rgba(255,255,255,0.55);
+}
+
 </style>
 </head>
 <body>
@@ -1578,6 +1638,50 @@ function genT(sv,months,rate){
 }
 function sorted(){return[...state.months].sort((a,b)=>a.month.localeCompare(b.month))}
 
+// ─── MONTHLY PERFORMANCE CALC ─────────────────────────────────
+function calcMonthPerf(m, prevM) {
+  const endPortfolio   = m.actualPortfolio ?? null
+  const startPortfolio = prevM?.actualPortfolio ?? null
+  const contribution   = m.actualContribution || 0
+
+  if (endPortfolio == null || startPortfolio == null) {
+    return { endPortfolio, startPortfolio, contribution,
+             investmentPL: null, returnPct: null,
+             adjustedReturn: null, marketShare: null,
+             contributionShare: null, efficiency: null }
+  }
+
+  const investmentPL = endPortfolio - startPortfolio - contribution
+
+  // Return % on start capital
+  const returnPct = startPortfolio > 0
+    ? (investmentPL / startPortfolio) * 100
+    : null
+
+  // Adjusted return: midpoint method (avoids contribution timing bias)
+  const adjustedBase = startPortfolio + contribution / 2
+  const adjustedReturn = adjustedBase > 0
+    ? (investmentPL / adjustedBase) * 100
+    : null
+
+  // Growth split — only meaningful when there's positive total movement
+  const totalMovement = investmentPL + contribution
+  let marketShare = null, contributionShare = null
+  if (totalMovement !== 0) {
+    marketShare       = (investmentPL  / totalMovement) * 100
+    contributionShare = (contribution  / totalMovement) * 100
+  } else if (contribution === 0) {
+    marketShare = 100; contributionShare = 0
+  }
+
+  // Efficiency: investment P&L per $ contributed (null if no contribution)
+  const efficiency = contribution > 0 ? investmentPL / contribution : null
+
+  return { endPortfolio, startPortfolio, contribution,
+           investmentPL, returnPct, adjustedReturn,
+           marketShare, contributionShare, efficiency }
+}
+
 function derive(){
   const ms=sorted()
   const tracked=ms.filter(m=>m.actualPortfolio!=null)
@@ -1920,50 +2024,114 @@ function renderTimeline(){
     const tgt=t3[i]?.target
     const gap=m.actualPortfolio!=null&&tgt!=null?m.actualPortfolio-tgt:null
     const gapPct=gap!=null&&tgt?(gap/tgt*100):null
-    const gapPctStr=gapPct!=null?(gapPct>0?'+':'')+gapPct.toFixed(1)+'%':null
     const a=gap!=null&&gap>0, b=gap!=null&&gap<0
-    const gc=a?'cg':b?'cr':'cm'
     const stripeCls=a?'stripe-green':b?'stripe-red':'stripe-amber'
+
+    // ── Performance calculations ────────────────────────────────
+    const prevM = i > 0 ? ms[i-1] : null
+    const perf  = calcMonthPerf(m, prevM)
+
+    // Status pill (vs 3% target)
+    const gapPctStr=gapPct!=null?(gapPct>0?'+':'')+gapPct.toFixed(1)+'%':null
     const gbCls=a?'mgb-green':b?'mgb-red':'mgb-flat'
-    const acOk=(m.actualContribution||0)>=(m.plannedContribution||0)
-    const gapTxt=gap!=null?(gap>=0?'+':'')+fmt(gap):'—'
     const statusPill=gap==null?''
       :a&&gapPct>2?'<span class="tl-status-pill tsp-green">Ahead</span>'
       :a?'<span class="tl-status-pill tsp-green">On Track</span>'
       :gapPct<-5?'<span class="tl-status-pill tsp-red">Behind</span>'
       :'<span class="tl-status-pill tsp-amber">Slightly Behind</span>'
-    const dp=m.plannedContribution>0?(m.actualContribution/m.plannedContribution*100):null
-    const discNote=dp!=null
-      ?dp>=100?dp.toFixed(0)+'% of plan'
-        :dp>=80?dp.toFixed(0)+'% of plan'
-        :dp.toFixed(0)+'% of plan — shortfall'
-      :''
-    const discColor=dp==null?''
-      :dp>=100?'color:var(--green)'
-      :dp>=80?'color:var(--amber)'
-      :'color:var(--red)'
+
+    // ── Headline value ──────────────────────────────────────────
+    const endVal = m.actualPortfolio!=null ? fmt(m.actualPortfolio) : '—'
+    const ctxLine = (perf.startPortfolio!=null && m.actualPortfolio!=null)
+      ? `${fmt(perf.startPortfolio)} &rarr; ${fmt(m.actualPortfolio)}`
+      : ''
+
+    // ── Performance block ───────────────────────────────────────
+    let perfHTML = ''
+    if (perf.investmentPL !== null) {
+      const plSign  = perf.investmentPL >= 0 ? '+' : ''
+      const plColor = perf.investmentPL >= 0 ? 'color:var(--green)' : 'color:var(--red)'
+      const pctStr  = perf.returnPct != null
+        ? ` (${perf.returnPct >= 0 ? '+' : ''}${perf.returnPct.toFixed(2)}%)`
+        : ''
+      const contribSign = perf.contribution >= 0 ? '+' : ''
+      perfHTML = `
+      <div class="mr-perf-block">
+        <div class="mr-perf-row">
+          <span class="mr-perf-label">Return</span>
+          <span class="mr-perf-val" style="${plColor}">${plSign}${fmt(perf.investmentPL)}${pctStr}</span>
+        </div>
+        <div class="mr-perf-row">
+          <span class="mr-perf-label">Contribution</span>
+          <span class="mr-perf-val" style="color:var(--cyan)">${contribSign}${fmt(perf.contribution)}</span>
+        </div>
+      </div>`
+    } else if (m.actualContribution) {
+      perfHTML = `
+      <div class="mr-perf-block">
+        <div class="mr-perf-row">
+          <span class="mr-perf-label">Contribution</span>
+          <span class="mr-perf-val" style="color:var(--cyan)">+${fmt(m.actualContribution)}</span>
+        </div>
+      </div>`
+    }
+
+    // ── Split bar ───────────────────────────────────────────────
+    let splitHTML = ''
+    if (perf.marketShare !== null && perf.contributionShare !== null) {
+      const mktW  = Math.max(0, Math.min(100, perf.marketShare)).toFixed(1)
+      const conW  = Math.max(0, Math.min(100, perf.contributionShare)).toFixed(1)
+      const mktLbl = `${perf.marketShare >= 0 ? '' : ''}${Math.abs(perf.marketShare).toFixed(0)}% Market`
+      const conLbl = `${Math.abs(perf.contributionShare).toFixed(0)}% Savings`
+      splitHTML = `
+      <div class="mr-split-bar">
+        <div class="mr-split-market" style="width:${mktW}%"></div>
+        <div class="mr-split-contrib" style="width:${conW}%"></div>
+      </div>
+      <div class="mr-split-labels">
+        <span class="msl-market">${mktLbl}</span>
+        <span class="msl-contrib">${conLbl}</span>
+      </div>`
+    }
+
+    // ── Advanced metrics ────────────────────────────────────────
+    let advHTML = ''
+    const advItems = []
+    if (perf.adjustedReturn !== null)
+      advItems.push(`<div class="mr-adv-item"><div class="mr-adv-lbl">Adj Return</div><div class="mr-adv-val">${perf.adjustedReturn >= 0 ? '+' : ''}${perf.adjustedReturn.toFixed(2)}%</div></div>`)
+    if (perf.efficiency !== null)
+      advItems.push(`<div class="mr-adv-item"><div class="mr-adv-lbl">Efficiency</div><div class="mr-adv-val" title="Investment P&L per $1 contributed">${perf.efficiency >= 0 ? '+' : ''}${perf.efficiency.toFixed(2)}x</div></div>`)
+    if (gap !== null)
+      advItems.push(`<div class="mr-adv-item"><div class="mr-adv-lbl">vs 3% Path</div><div class="mr-adv-val" style="${a?'color:rgba(46,232,154,0.65)':b?'color:rgba(255,107,122,0.65)':''}">${gap>=0?'+':''}${fmt(gap)}</div></div>`)
+    if (advItems.length)
+      advHTML = `<div class="mr-adv">${advItems.join('')}</div>`
+
     return `<div class="month-row card-hover" onclick="openModal('${m.month}')">
       <div class="stripe ${stripeCls}"></div>
-      <div class="mr-top">
-        <div>
-          <div class="mname">${fmtMo(m.month)}</div>
-          <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap">
-            <div class="m-gap-badge ${gbCls}">${gapPctStr||'—'} vs 3%</div>
-            ${statusPill}
+      <div style="padding-left:14px">
+
+        <!-- Header row: month name + status -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div class="mname">${fmtMo(m.month)}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap">
+              <div class="m-gap-badge ${gbCls}">${gapPctStr||'—'} vs 3%</div>
+              ${statusPill}
+            </div>
           </div>
-          ${discNote?`<div style="font-size:10px;margin-top:4px;font-family:JetBrains Mono,monospace;${discColor}">${discNote}</div>`:''}
+          <!-- Headline: end portfolio value -->
+          <div style="text-align:right">
+            <div class="mr-headline">${endVal}</div>
+            ${ctxLine ? `<div class="mr-context">${ctxLine}</div>` : ''}
+          </div>
         </div>
-        <div>
-          <div class="mpval">${m.actualPortfolio!=null?fmt(m.actualPortfolio):'—'}</div>
-          <div class="m-sub">portfolio</div>
-        </div>
+
+        ${perfHTML}
+        ${splitHTML}
+        ${advHTML}
+
+        ${m.note?`<div style="font-size:11px;color:rgba(255,255,255,0.28);margin-top:10px;font-style:italic;line-height:1.4">${m.note}</div>`:''}
       </div>
-      <div class="mgrid">
-        <div><div class="mslbl">Planned</div><div class="msval cm">${fmt(m.plannedContribution)}</div></div>
-        <div><div class="mslbl">Actual</div><div class="msval ${acOk?'cg':'ca'}">${fmt(m.actualContribution)}</div></div>
-        <div><div class="mslbl">vs 3%</div><div class="msval ${gc}">${gapTxt}</div></div>
-      </div>
-      ${m.note?`<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px;padding-left:14px;font-style:italic;line-height:1.4">${m.note}</div>`:''}
     </div>`
   }).join('')
 }
