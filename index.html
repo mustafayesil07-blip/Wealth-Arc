@@ -1969,10 +1969,10 @@ function openChartModal(){
       let dateStr
       if(p.m===null){
         const first=ms.find(x=>x.startPortfolio!=null)
-        if(first){ const [y,mo]=first.month.split('-').map(Number); const d=new Date(y,mo-1,1); dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(y).slice(2) } else dateStr='—'
+        if(first){ const [y,mo]=first.month.split('-').map(Number); const d=new Date(y,mo-1,1); dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2) } else dateStr='—'
       } else {
-        const [y,mo]=p.m.month.split('-').map(Number); const d=new Date(y,mo-1,1)
-        dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(y).slice(2)
+        const [y,mo]=p.m.month.split('-').map(Number); const d=new Date(y,mo,1)
+        dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)
       }
       const act = p.actual!=null ? `<span class="ct-actual">${fmt(p.actual)}</span>` : '<span style="color:var(--mu)">—</span>'
       return `<tr><td>${dateStr}</td><td>${act}</td><td>${fmt(p.t2)}</td><td>${fmt(p.t3)}</td><td>${fmt(p.t4)}</td></tr>`
@@ -2029,8 +2029,8 @@ function drawChartOnCanvas(canvas, W, H, dpr, ttPfx, tooltipEl){
     const show=nPlot<=8||i===0||i===nPlot-1||i%(Math.ceil((nPlot-1)/5))===0
     if(!show)return
     let lbl
-    if(m===null){const f=ms.find(x=>x.startPortfolio!=null);if(f){const[y,mo]=f.month.split('-').map(Number);const d=new Date(y,mo-1,1);lbl='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(y).slice(2)}}
-    else{const[y,mo]=m.month.split('-').map(Number);const d=new Date(y,mo-1,1);lbl='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(y).slice(2)}
+    if(m===null){const f=ms.find(x=>x.startPortfolio!=null);if(f){const[y,mo]=f.month.split('-').map(Number);const d=new Date(y,mo-1,1);lbl='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)}}
+    else{const[y,mo]=m.month.split('-').map(Number);const d=new Date(y,mo,1);lbl='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)}
     if(!lbl)return
     C.save();C.translate(xOf(i),H-padB+10);C.rotate(-Math.PI/2);C.textAlign='right';C.fillText(lbl,0,3);C.restore()
   })
@@ -2075,8 +2075,8 @@ function drawChartOnCanvas(canvas, W, H, dpr, ttPfx, tooltipEl){
       plotData.forEach((p,i)=>{const d=Math.abs(p.x-px);if(d<bestDist){bestDist=d;best=i}})
       const p=plotData[best];if(!p)return
       let dateStr
-      if(p.m===null){const f=ms.find(x=>x.startPortfolio!=null);if(f){const[y,mo]=f.month.split('-').map(Number);const d=new Date(y,mo-1,1);dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(y).slice(2)}}
-      else{const[y,mo]=p.m.month.split('-').map(Number);const d=new Date(y,mo-1,1);dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(y).slice(2)}
+      if(p.m===null){const f=ms.find(x=>x.startPortfolio!=null);if(f){const[y,mo]=f.month.split('-').map(Number);const d=new Date(y,mo-1,1);dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)}}
+      else{const[y,mo]=p.m.month.split('-').map(Number);const d=new Date(y,mo,1);dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)}
       document.getElementById(ttPfx+'date').textContent=dateStr||'—'
       document.getElementById(ttPfx+'actual').textContent=p.actual!=null?fmt(p.actual):'—'
       document.getElementById(ttPfx+'t2').textContent=fmt(p.t2)
