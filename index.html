@@ -1826,14 +1826,15 @@ function sorted(){return[...state.months].sort((a,b)=>a.month.localeCompare(b.mo
 
 // ─── MONTHLY PERFORMANCE CALC ─────────────────────────────────
 function calcMonthPerf(m, prevM) {
-  const endPortfolio   = m.actualPortfolio ?? null
-  // Use the month's own startPortfolio field (manual input).
-  // Fall back to the previous month's end value only when startPortfolio was not set
-  // (backwards-compat for data saved before this field existed).
-  const startPortfolio = m.startPortfolio != null
-    ? m.startPortfolio
-    : (prevM?.actualPortfolio ?? null)
-  const contribution   = m.actualContribution || 0
+  const endPortfolio = m.actualPortfolio ?? null
+
+  // startPortfolio = previous month's closing value (endPortfolio already includes
+  // that month's contribution — no need to add it again).
+  // First month: use m.startPortfolio (manually entered).
+  const startPortfolio = prevM?.actualPortfolio != null
+    ? prevM.actualPortfolio
+    : (m.startPortfolio ?? null)
+  const contribution = m.actualContribution || 0
 
   if (endPortfolio == null || startPortfolio == null) {
     return { endPortfolio, startPortfolio, contribution,
@@ -2457,12 +2458,11 @@ function openModal(ms){
     document.getElementById('modal-title').textContent='Edit Month'
     document.getElementById('f-month').value=editM
     document.getElementById('f-month').disabled=true
-    // Auto-start = prev end + prev actual contribution
-    const autoStart=prevM?.actualPortfolio!=null
-      ? prevM.actualPortfolio+(prevM.actualContribution||0) : null
-    startInput.value=m?.startPortfolio??autoStart??''
-    startInput.disabled=autoStart!==null
-    startInput.style.opacity=autoStart!==null?'0.5':'1'
+    // autoStart = prev month end (contribution already included in endPortfolio)
+    const autoStart = prevM?.actualPortfolio ?? null
+    startInput.value = autoStart ?? (m?.startPortfolio ?? '')
+    startInput.disabled = autoStart !== null
+    startInput.style.opacity = autoStart !== null ? '0.5' : '1'
     document.getElementById('f-portfolio').value=m?.actualPortfolio??''
     document.getElementById('f-planned').value=m?.plannedContribution??''
     document.getElementById('f-actual-c').value=m?.actualContribution??''
@@ -2473,8 +2473,7 @@ function openModal(ms){
     document.getElementById('f-month').value=''
     document.getElementById('f-month').disabled=false
     const lastM=sortedMs.length?sortedMs[sortedMs.length-1]:null
-    const autoStart=lastM?.actualPortfolio!=null
-      ? lastM.actualPortfolio+(lastM.actualContribution||0) : null
+    const autoStart = lastM?.actualPortfolio ?? null
     startInput.value=autoStart??''
     startInput.disabled=autoStart!==null
     startInput.style.opacity=autoStart!==null?'0.5':'1'
@@ -2493,8 +2492,9 @@ function saveMonth(){
   const mo=document.getElementById('f-month').value
   if(!mo){toast('Please select a month');return}
   const startInput=document.getElementById('f-start-portfolio')
-  // Read value even when disabled (browser may suppress disabled field values)
-  const startVal=startInput.value!==''?+startInput.value:null
+  // If the field is disabled, autoStart is in control — read it directly from the input
+  // (disabled inputs are readable via .value in JS even if not submitted in forms)
+  const startVal = startInput.value !== '' ? +startInput.value : null
   const row={
     month:mo,
     startPortfolio:startVal,
