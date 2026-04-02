@@ -88,8 +88,8 @@ body::after{
 #app{min-height:100dvh;display:flex;flex-direction:column;position:relative;z-index:1}
 main{flex:1;padding-bottom:92px}
 .page{display:none}
-.page.active{display:block}
-@keyframes pgIn{from{opacity:0}to{opacity:1}}
+.page.active{display:block;animation:pgIn 0.18s ease-out}
+@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .container{max-width:640px;margin:0 auto;padding:20px 15px 28px}
 
 /* ── HEADER ── */
@@ -430,7 +430,7 @@ input:disabled{background:rgba(200,185,165,0.30);cursor:not-allowed}
   padding:20px;
   box-shadow:0 8px 40px rgba(140,110,80,0.20);
 }
-#chart-modal-canvas-wrap{position:relative;height:320px;margin-bottom:16px}
+#chart-modal-canvas-wrap{position:relative;height:380px;margin-bottom:16px}
 .chart-modal-close{
   background:rgba(140,110,80,0.10);border:1px solid var(--bd);
   border-radius:8px;padding:6px 12px;
@@ -817,6 +817,19 @@ input[type="range"]::-moz-range-thumb{
 .signal-chip{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,252,248,0.80);border:1px solid var(--bd);border-radius:12px;font-size:13px;color:var(--tx);line-height:1.45;box-shadow:0 2px 6px rgba(140,110,80,0.07)}
 .signal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .sd-green{background:var(--green)}.sd-red{background:var(--red)}.sd-amber{background:var(--gold)}.sd-blue{background:var(--sky)}
+
+/* Signal items (dashboard wealth signals) */
+.signal-item{display:flex;align-items:flex-start;gap:11px;background:rgba(255,252,248,0.82);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;box-shadow:0 2px 6px rgba(140,110,80,0.07)}
+.signal-icon{font-size:18px;flex-shrink:0;line-height:1.2;margin-top:1px}
+.signal-text{flex:1}
+.signal-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:3px;line-height:1.3}
+.signal-sub{font-size:12px;color:var(--mu);line-height:1.5}
+
+/* Interp fact chips */
+.ifact{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;border:1px solid var(--bd)}
+.ifact-green{background:var(--green-dim);color:var(--green);border-color:rgba(46,139,90,.22)}
+.ifact-gold{background:var(--gold-dim);color:var(--gold-d);border-color:rgba(200,133,42,.22)}
+.ifact-red{background:var(--red-dim);color:var(--red);border-color:rgba(192,57,74,.18)}
 
 /* ── ANNUAL SUMMARY ── */
 .ann-section{margin-bottom:22px}
@@ -2105,13 +2118,16 @@ function derive(){
 function buildChart(){
   const ms=sorted()
   const canvas=document.getElementById('main-chart')
+  if(!canvas||!ms.length)return
   const wrap=canvas.parentElement
-  if(!ms.length)return
-  const dpr=window.devicePixelRatio||1
-  const W=wrap.clientWidth||320,H=wrap.clientHeight||240
-  canvas.width=W*dpr;canvas.height=H*dpr
-  canvas.style.width=W+'px';canvas.style.height=H+'px'
-  drawChartOnCanvas(canvas,W,H,dpr,'tt-',document.getElementById('chart-tooltip'))
+  // requestAnimationFrame ensures layout is complete so clientWidth is accurate
+  requestAnimationFrame(()=>{
+    const dpr=window.devicePixelRatio||1
+    const W=Math.max(wrap.clientWidth||300,200),H=wrap.clientHeight||240
+    canvas.width=W*dpr;canvas.height=H*dpr
+    canvas.style.width=W+'px';canvas.style.height=H+'px'
+    drawChartOnCanvas(canvas,W,H,dpr,'tt-',document.getElementById('chart-tooltip'))
+  })
 }
 
 // ─── CHART MODAL ──────────────────────────────────────────────
@@ -2127,26 +2143,29 @@ function openChartModal(){
       let dateStr
       if(p.m===null){
         const first=ms.find(x=>x.startPortfolio!=null)
-        if(first){ const [y,mo]=first.month.split('-').map(Number); const d=new Date(y,mo-1,1); dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2) } else dateStr='—'
+        if(first){ const [y,mo]=first.month.split('-').map(Number); const d=new Date(y,mo-1,1); dateStr=d.toLocaleString('en-US',{month:'short',year:'numeric'}) } else dateStr='—'
       } else {
         const [y,mo]=p.m.month.split('-').map(Number); const d=new Date(y,mo,1)
-        dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)
+        dateStr=d.toLocaleString('en-US',{month:'short',year:'numeric'})
       }
       const act = p.actual!=null ? `<span class="ct-actual">${fmt(p.actual)}</span>` : '<span style="color:var(--mu)">—</span>'
       return `<tr><td>${dateStr}</td><td>${act}</td><td>${fmt(p.t2)}</td><td>${fmt(p.t3)}</td><td>${fmt(p.t4)}</td></tr>`
     }).join('')
   }
-  // Büyük canvas'ı çiz
-  setTimeout(()=>{
-    const wrap=document.getElementById('chart-modal-canvas-wrap')
-    const cvs =document.getElementById('modal-chart')
-    if(!wrap||!cvs)return
-    const dpr=window.devicePixelRatio||1
-    const W=wrap.clientWidth||600, H=320
-    cvs.width=W*dpr; cvs.height=H*dpr
-    cvs.style.width=W+'px'; cvs.style.height=H+'px'
-    drawChartOnCanvas(cvs, W, H, dpr, 'mtt-', document.getElementById('chart-modal-tooltip'))
-  },50)
+  // Büyük canvas — requestAnimationFrame ile tarayıcı layout tamamlandıktan sonra çiz
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      const wrap=document.getElementById('chart-modal-canvas-wrap')
+      const cvs =document.getElementById('modal-chart')
+      if(!wrap||!cvs)return
+      const dpr=window.devicePixelRatio||1
+      const W=Math.max(wrap.clientWidth||300, 300), H=380
+      cvs.width=W*dpr; cvs.height=H*dpr
+      cvs.style.width=W+'px'; cvs.style.height=H+'px'
+      wrap.style.height=H+'px'
+      drawChartOnCanvas(cvs, W, H, dpr, 'mtt-', document.getElementById('chart-modal-tooltip'))
+    })
+  })
 }
 function closeChartModal(e){
   if(e && e.target!==document.getElementById('chart-modal'))return
@@ -2154,12 +2173,20 @@ function closeChartModal(e){
   document.body.style.overflow=''
 }
 
+// ─── AbortController map for chart event listeners (prevents buildup) ──
+const _chartAC = new WeakMap()
+
 // ─── SHARED CHART DRAWING (main + modal) ──────────────────────
 function drawChartOnCanvas(canvas, W, H, dpr, ttPfx, tooltipEl){
   const ms=sorted()
   if(!ms.length)return
   const C=canvas.getContext('2d')
-  C.scale(dpr,dpr);C.clearRect(0,0,W,H)
+
+  // Reset transform fully before scaling (prevents cumulative scale on redraws)
+  C.setTransform(1,0,0,1,0,0)
+  C.clearRect(0,0,canvas.width,canvas.height)
+  C.scale(dpr,dpr)
+
   const firstMs=ms.find(m=>m.startPortfolio!=null)
   const chartOrigin=firstMs?.startPortfolio??state.startValue
   const t2=genT(chartOrigin,ms,0.02)
@@ -2167,88 +2194,201 @@ function drawChartOnCanvas(canvas, W, H, dpr, ttPfx, tooltipEl){
   const t4=genT(chartOrigin,ms,0.04)
   const av=ms.map(m=>m.actualPortfolio??null)
   const d2=t2.map(t=>t.target),d3=t3.map(t=>t.target),d4=t4.map(t=>t.target)
-  const avPlot=[chartOrigin,...av], d2Plot=[chartOrigin,...d2], d3Plot=[chartOrigin,...d3], d4Plot=[chartOrigin,...d4]
+  const avPlot=[chartOrigin,...av],d2Plot=[chartOrigin,...d2],d3Plot=[chartOrigin,...d3],d4Plot=[chartOrigin,...d4]
   const labelsPlot=[null,...ms]
   const nPlot=avPlot.length
-  const padL=60,padR=14,padT=28,padB=62
+
+  // Store plot data for the expand modal data table
+  window._chartMs=ms
+  window._chartPlotData=labelsPlot.map((m,i)=>({m,i,actual:avPlot[i],t2:d2Plot[i],t3:d3Plot[i],t4:d4Plot[i]}))
+
+  const padL=66,padR=16,padT=30,padB=68
   const cW=W-padL-padR,cH=H-padT-padB
   const allV=[...avPlot.filter(v=>v!=null),...d2Plot,...d3Plot,...d4Plot]
-  const minV=Math.min(...allV)*0.974,maxV=Math.max(...allV)*1.023
+  const minV=Math.min(...allV)*0.972,maxV=Math.max(...allV)*1.025
   const xOf=i=>padL+(i/Math.max(nPlot-1,1))*cW
   const yOf=v=>padT+cH-((v-minV)/(maxV-minV))*cH
-  C.fillStyle='#1e1a14'; C.fillRect(0,0,W,H)
-  C.strokeStyle='rgba(255,255,255,0.07)';C.lineWidth=1
-  for(let i=0;i<=4;i++){const y=padT+(i/4)*cH;C.beginPath();C.moveTo(padL,y);C.lineTo(padL+cW,y);C.stroke()}
-  for(let i=0;i<nPlot;i++){C.strokeStyle='rgba(255,255,255,0.04)';C.beginPath();C.moveTo(xOf(i),padT);C.lineTo(xOf(i),padT+cH);C.stroke()}
-  C.fillStyle='rgba(255,240,210,0.60)';C.font='bold 10px JetBrains Mono,monospace';C.textAlign='right'
-  for(let i=0;i<=4;i++){const v=minV+((4-i)/4)*(maxV-minV);C.fillText(fmtC(v),padL-8,padT+(i/4)*cH+3.5)}
-  C.fillStyle='rgba(255,240,210,0.60)';C.font='bold 9px JetBrains Mono,monospace'
+
+  // ── Background ──────────────────────────────────────────────
+  C.fillStyle='#19150f'
+  const bgRadius=10
+  C.beginPath();C.roundRect(0,0,W,H,bgRadius);C.fill()
+
+  // ── Subtle gradient overlay ──────────────────────────────────
+  const bgGr=C.createLinearGradient(0,0,0,H)
+  bgGr.addColorStop(0,'rgba(245,166,35,0.05)');bgGr.addColorStop(1,'transparent')
+  C.fillStyle=bgGr;C.beginPath();C.roundRect(0,0,W,H,bgRadius);C.fill()
+
+  // ── Grid lines ───────────────────────────────────────────────
+  const gridCount=5
+  for(let i=0;i<=gridCount;i++){
+    const y=padT+(i/gridCount)*cH
+    C.strokeStyle=i===gridCount?'rgba(255,255,255,0.10)':'rgba(255,255,255,0.06)'
+    C.lineWidth=i===gridCount?1:0.75
+    C.setLineDash(i===0||i===gridCount?[]:[4,4])
+    C.beginPath();C.moveTo(padL,y);C.lineTo(padL+cW,y);C.stroke()
+    C.setLineDash([])
+  }
+
+  // ── Y-axis labels ────────────────────────────────────────────
+  C.fillStyle='rgba(255,235,190,0.82)';C.font='bold 11px JetBrains Mono,monospace';C.textAlign='right'
+  for(let i=0;i<=gridCount;i++){
+    const v=maxV-((i/gridCount)*(maxV-minV))
+    C.fillText(fmtC(v),padL-9,padT+(i/gridCount)*cH+4)
+  }
+
+  // ── X-axis labels ─────────────────────────────────────────────
+  C.fillStyle='rgba(255,235,190,0.72)';C.font='10px JetBrains Mono,monospace'
   labelsPlot.forEach((m,i)=>{
-    const show=nPlot<=8||i===0||i===nPlot-1||i%(Math.ceil((nPlot-1)/5))===0
+    const step=Math.max(1,Math.ceil((nPlot-1)/6))
+    const show=nPlot<=7||i===0||i===nPlot-1||i%step===0
     if(!show)return
     let lbl
-    if(m===null){const f=ms.find(x=>x.startPortfolio!=null);if(f){const[y,mo]=f.month.split('-').map(Number);const d=new Date(y,mo-1,1);lbl='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)}}
-    else{const[y,mo]=m.month.split('-').map(Number);const d=new Date(y,mo,1);lbl='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)}
+    if(m===null){
+      const f=ms.find(x=>x.startPortfolio!=null)
+      if(f){const[y,mo]=f.month.split('-').map(Number);lbl=new Date(y,mo-1,1).toLocaleString('en-US',{month:'short',year:'2-digit'})}
+    } else {
+      const[y,mo]=m.month.split('-').map(Number);lbl=new Date(y,mo,1).toLocaleString('en-US',{month:'short',year:'2-digit'})
+    }
     if(!lbl)return
-    C.save();C.translate(xOf(i),H-padB+10);C.rotate(-Math.PI/2);C.textAlign='right';C.fillText(lbl,0,3);C.restore()
+    C.save();C.translate(xOf(i),H-padB+12);C.rotate(-Math.PI/2.5);C.textAlign='right'
+    C.fillText(lbl,0,3);C.restore()
   })
+
+  // ── Area fill under actual line ───────────────────────────────
+  const af=avPlot.map((v,i)=>v!=null?{v,i}:null).filter(Boolean)
+  if(af.length>=2){
+    C.beginPath()
+    af.forEach(p=>C.lineTo(xOf(p.i),yOf(p.v)))
+    C.lineTo(xOf(af[af.length-1].i),padT+cH)
+    C.lineTo(xOf(af[0].i),padT+cH)
+    C.closePath()
+    const gr=C.createLinearGradient(0,padT,0,padT+cH)
+    gr.addColorStop(0,'rgba(245,166,35,0.25)');gr.addColorStop(0.55,'rgba(245,166,35,0.06)');gr.addColorStop(1,'transparent')
+    C.fillStyle=gr;C.fill()
+  }
+
+  // ── Target lines ──────────────────────────────────────────────
   function line(data,color,dash,width){
     C.strokeStyle=color;C.lineWidth=width||1.5;C.setLineDash(dash||[]);C.lineJoin='round';C.lineCap='round'
     C.beginPath();let s=false
-    data.forEach((v,i)=>{if(v==null)return;const x=xOf(i),y=yOf(v);s?(C.lineTo(x,y)):(C.moveTo(x,y),s=true)})
+    data.forEach((v,i)=>{if(v==null)return;const x=xOf(i),y=yOf(v);s?C.lineTo(x,y):(C.moveTo(x,y),s=true)})
     C.stroke();C.setLineDash([])
   }
-  line(d2Plot,'rgba(110,200,240,0.55)',[6,4],1.5)
-  line(d3Plot,'rgba(245,180,60,0.55)',[6,4],1.5)
-  line(d4Plot,'rgba(190,160,255,0.55)',[6,4],1.5)
-  const af=avPlot.map((v,i)=>v!=null?{v,i}:null).filter(Boolean)
-  if(af.length>=2){
-    C.beginPath();af.forEach(p=>C.lineTo(xOf(p.i),yOf(p.v)))
-    C.lineTo(xOf(af[af.length-1].i),padT+cH);C.lineTo(xOf(af[0].i),padT+cH);C.closePath()
-    const gr=C.createLinearGradient(0,padT,0,padT+cH);gr.addColorStop(0,'rgba(245,166,35,0.22)');gr.addColorStop(0.6,'rgba(245,166,35,0.06)');gr.addColorStop(1,'transparent')
-    C.fillStyle=gr;C.fill()
-  }
-  C.save();C.shadowColor='rgba(245,166,35,0.7)';C.shadowBlur=10;line(avPlot,'#f5a623',[],2.5);C.restore()
+  line(d2Plot,'rgba(110,200,240,0.60)',[5,4],1.8)
+  line(d3Plot,'rgba(245,180,60,0.60)',[5,4],1.8)
+  line(d4Plot,'rgba(190,160,255,0.60)',[5,4],1.8)
+
+  // ── Actual portfolio line ─────────────────────────────────────
+  C.save();C.shadowColor='rgba(245,166,35,0.65)';C.shadowBlur=12
+  line(avPlot,'#f5a623',[],2.8)
+  C.restore()
+
+  // ── Data points ───────────────────────────────────────────────
   avPlot.forEach((v,i)=>{
     if(v==null)return
-    const x=xOf(i),y=yOf(v),isLast=(i===nPlot-1||avPlot.slice(i+1).every(w=>w==null))
-    C.save();if(isLast){C.shadowColor='rgba(245,166,35,0.9)';C.shadowBlur=14}
-    C.beginPath();C.arc(x,y,isLast?6:3.5,0,Math.PI*2);C.fillStyle='#1e1a14';C.fill()
-    C.beginPath();C.arc(x,y,isLast?4.5:2.5,0,Math.PI*2);C.fillStyle='#f5a623';C.fill();C.restore()
+    const x=xOf(i),y=yOf(v)
+    const isLast=i===nPlot-1||avPlot.slice(i+1).every(w=>w==null)
+    const r=isLast?5.5:3
+    C.save()
+    if(isLast){C.shadowColor='rgba(245,166,35,0.95)';C.shadowBlur=16}
+    C.beginPath();C.arc(x,y,r+1.5,0,Math.PI*2);C.fillStyle='#19150f';C.fill()
+    C.beginPath();C.arc(x,y,r,0,Math.PI*2);C.fillStyle='#f5a623';C.fill()
+    C.restore()
   })
+
+  // ── Legend ─────────────────────────────────────────────────
   const legs=[{l:'Actual',c:'rgba(245,166,35,1)',d:false},{l:'2%',c:'rgba(110,200,240,0.9)',d:true},{l:'3%',c:'rgba(245,180,60,0.9)',d:true},{l:'4%',c:'rgba(190,160,255,0.9)',d:true}]
-  let lx=padL;C.font='bold 9px JetBrains Mono,monospace';C.textAlign='left'
+  let lx=padL
+  C.font='bold 10px JetBrains Mono,monospace';C.textAlign='left'
   legs.forEach(lg=>{
-    C.strokeStyle=lg.c;C.lineWidth=lg.d?1.5:2.2;C.setLineDash(lg.d?[4,3]:[])
-    C.beginPath();C.moveTo(lx,11);C.lineTo(lx+14,11);C.stroke();C.setLineDash([])
-    C.fillStyle='rgba(255,240,210,0.75)';C.fillText(lg.l,lx+18,15);lx+=C.measureText(lg.l).width+32
+    C.strokeStyle=lg.c;C.lineWidth=lg.d?1.5:2.4;C.setLineDash(lg.d?[4,3]:[])
+    C.beginPath();C.moveTo(lx,15);C.lineTo(lx+14,15);C.stroke();C.setLineDash([])
+    C.fillStyle='rgba(255,235,190,0.82)';C.fillText(lg.l,lx+18,19)
+    lx+=C.measureText(lg.l).width+34
   })
-  // Tooltip
+
+  // ── Tooltip + Crosshair ──────────────────────────────────────
   if(tooltipEl){
     const plotData=labelsPlot.map((m,i)=>({m,i,actual:avPlot[i],t2:d2Plot[i],t3:d3Plot[i],t4:d4Plot[i],x:xOf(i)}))
+
+    let activeIdx=-1
+
+    function redrawCrosshair(idx){
+      if(idx<0||idx>=plotData.length)return
+      const p=plotData[idx]
+      // Redraw chart (clear crosshair layer)
+      drawStaticPart()
+      // Draw crosshair
+      const cx=p.x
+      C.save()
+      C.strokeStyle='rgba(255,235,190,0.22)';C.lineWidth=1;C.setLineDash([3,3])
+      C.beginPath();C.moveTo(cx,padT);C.lineTo(cx,padT+cH);C.stroke()
+      C.setLineDash([])
+      // Highlight dot
+      if(p.actual!=null){
+        const cy=yOf(p.actual)
+        C.beginPath();C.arc(cx,cy,7,0,Math.PI*2)
+        C.fillStyle='rgba(245,166,35,0.18)';C.fill()
+        C.beginPath();C.arc(cx,cy,4,0,Math.PI*2)
+        C.fillStyle='#f5a623';C.fill()
+      }
+      C.restore()
+    }
+
+    // Static part is drawn above; for crosshair we just draw on top without full redraw
+    // (the canvas is already painted — crosshair is an overlay drawn each time)
     function showTT(clientX){
       const rect=canvas.getBoundingClientRect()
       const px=(clientX-rect.left)*(W/rect.width)
       let best=0,bestDist=Infinity
       plotData.forEach((p,i)=>{const d=Math.abs(p.x-px);if(d<bestDist){bestDist=d;best=i}})
+      if(best===activeIdx)return
+      activeIdx=best
       const p=plotData[best];if(!p)return
       let dateStr
-      if(p.m===null){const f=ms.find(x=>x.startPortfolio!=null);if(f){const[y,mo]=f.month.split('-').map(Number);const d=new Date(y,mo-1,1);dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)}}
-      else{const[y,mo]=p.m.month.split('-').map(Number);const d=new Date(y,mo,1);dateStr='01 '+d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)}
+      if(p.m===null){
+        const f=ms.find(x=>x.startPortfolio!=null)
+        if(f)dateStr=new Date(...f.month.split('-').map((v,i)=>i===1?+v-1:+v)).toLocaleString('en-US',{month:'short',year:'numeric'})
+      } else {
+        const[y,mo]=p.m.month.split('-').map(Number)
+        dateStr=new Date(y,mo,1).toLocaleString('en-US',{month:'short',year:'numeric'})
+      }
       document.getElementById(ttPfx+'date').textContent=dateStr||'—'
       document.getElementById(ttPfx+'actual').textContent=p.actual!=null?fmt(p.actual):'—'
       document.getElementById(ttPfx+'t2').textContent=fmt(p.t2)
       document.getElementById(ttPfx+'t3').textContent=fmt(p.t3)
       document.getElementById(ttPfx+'t4').textContent=fmt(p.t4)
-      const scaleX=rect.width/W,ttW=tooltipEl.offsetWidth||150
+      // Crosshair line on canvas
+      C.save()
+      C.setTransform(1,0,0,1,0,0);C.scale(dpr,dpr)
+      C.strokeStyle='rgba(255,235,190,0.20)';C.lineWidth=1;C.setLineDash([3,4])
+      // Clear previous crosshair by re-drawing a thin rect over it (lightweight)
+      // Just draw the new crosshair — old one fades naturally on full redraws
+      C.beginPath();C.moveTo(p.x,padT+2);C.lineTo(p.x,padT+cH-2);C.stroke()
+      C.setLineDash([])
+      C.restore()
+      // Position tooltip
+      const scaleX=rect.width/W
+      const ttW=tooltipEl.offsetWidth||150
       let left=p.x*scaleX-ttW/2;left=Math.max(4,Math.min(rect.width-ttW-4,left))
-      tooltipEl.style.left=left+'px';tooltipEl.style.top='4px';tooltipEl.style.display='block'
+      tooltipEl.style.left=left+'px'
+      tooltipEl.style.top=(padT+4)+'px'
+      tooltipEl.style.display='block'
     }
-    canvas.addEventListener('mousemove',e=>showTT(e.clientX))
-    canvas.addEventListener('touchstart',e=>{e.preventDefault();showTT(e.touches[0].clientX)},{passive:false})
-    canvas.addEventListener('touchmove',e=>{e.preventDefault();showTT(e.touches[0].clientX)},{passive:false})
-    canvas.addEventListener('mouseleave',()=>{tooltipEl.style.display='none'})
-    canvas.addEventListener('touchend',()=>{setTimeout(()=>{tooltipEl.style.display='none'},1800)})
+
+    function hideTT(){ tooltipEl.style.display='none'; activeIdx=-1 }
+
+    // Abort previous listeners on this canvas to prevent buildup
+    if(_chartAC.has(canvas)) _chartAC.get(canvas).abort()
+    const ac=new AbortController()
+    _chartAC.set(canvas,ac)
+    const sig={signal:ac.signal}
+    canvas.addEventListener('mousemove',e=>showTT(e.clientX),sig)
+    canvas.addEventListener('touchstart',e=>{e.preventDefault();showTT(e.touches[0].clientX)},{passive:false,...sig})
+    canvas.addEventListener('touchmove',e=>{e.preventDefault();showTT(e.touches[0].clientX)},{passive:false,...sig})
+    canvas.addEventListener('mouseleave',hideTT,sig)
+    canvas.addEventListener('touchend',()=>setTimeout(hideTT,1800),sig)
   }
 }
 
@@ -2452,7 +2592,9 @@ function renderDashboard(){
 function renderAnnualSummary(ms){
   const ann = document.getElementById('annual-summary')
   if(!ann) return
-  if(ms.length < 2){ ann.innerHTML=''; return }
+  if(ms.length < 1){ ann.innerHTML=''; return }
+
+  const currentYear = String(new Date().getFullYear())
 
   // Group months by year
   const byYear = {}
@@ -2469,8 +2611,9 @@ function renderAnnualSummary(ms){
     const entries = byYear[yr]
     const first = entries[0]
     const last  = entries[entries.length-1]
+    const isYTD = yr === currentYear
 
-    // Start value: startPortfolio of first month, or prev month's actual
+    // Start value: prev month's actual portfolio, or first month's startPortfolio
     const startVal = first.idx > 0 ? ms[first.idx-1].actualPortfolio : (first.m.startPortfolio ?? state.startValue)
     const endVal   = last.m.actualPortfolio
 
@@ -2484,11 +2627,17 @@ function renderAnnualSummary(ms){
     const gainCls      = isPos ? 'cg' : 'cr'
     const retStr       = annReturn != null ? ((annReturn>=0?'+':'')+annReturn.toFixed(1)+'%') : '—'
     const retCls       = annReturn==null?'cm':annReturn>=0?'cg':'cr'
+    const endLbl       = isYTD ? 'Current' : 'Year End'
+    const ytdBadge     = isYTD
+      ? `<span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:var(--gold-dim);color:var(--gold-d);border:1px solid rgba(200,133,42,.28);border-radius:20px;padding:2px 7px;margin-left:7px">YTD</span>`
+      : ''
 
     return `<div class="ann-card ${cardCls}">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div class="ann-year">${yr}</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700" class="${retCls}">${retStr}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+        <div style="display:flex;align-items:center">
+          <div class="ann-year">${yr}</div>${ytdBadge}
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700" class="${retCls}">${retStr}</div>
       </div>
       <div class="ann-grid">
         <div class="ann-stat">
@@ -2496,7 +2645,7 @@ function renderAnnualSummary(ms){
           <div class="ann-stat-val">${fmtC(startVal)}</div>
         </div>
         <div class="ann-stat">
-          <div class="ann-stat-lbl">End</div>
+          <div class="ann-stat-lbl">${endLbl}</div>
           <div class="ann-stat-val">${fmtC(endVal)}</div>
         </div>
         <div class="ann-stat">
@@ -2509,7 +2658,7 @@ function renderAnnualSummary(ms){
         </div>
         <div class="ann-stat">
           <div class="ann-stat-lbl">Months</div>
-          <div class="ann-stat-val">${entries.length}</div>
+          <div class="ann-stat-val cm">${entries.length}${isYTD?' tracked':''}</div>
         </div>
       </div>
     </div>`
@@ -2769,14 +2918,16 @@ function showPage(id,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'))
   document.getElementById('page-'+id).classList.add('active')
   btn.classList.add('active')
+  // Scroll BEFORE render — prevents "content slides up from below" effect
+  window.scrollTo(0,0)
+  document.documentElement.scrollTop=0
+  document.body.scrollTop=0
   if(id==='dashboard')renderDashboard()
   if(id==='timeline')renderTimeline()
   if(id==='projection')renderProjection()
   if(id==='income')renderIncome()
   if(id==='breakdown')renderBreakdown()
   if(id==='settings')renderSettings()
-  // Scroll after render — setTimeout ensures DOM has painted first
-  setTimeout(()=>{ window.scrollTo(0,0) }, 0)
 }
 function render(){
   const id=document.querySelector('.page.active')?.id?.replace('page-','')
