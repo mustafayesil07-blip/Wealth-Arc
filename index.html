@@ -1694,6 +1694,16 @@ const SEED = {
   ]
 }
 
+// ── HTML escape helper (prevents XSS in note fields) ───────────
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // ── Validation helpers ──────────────────────────────────────────
 function isValidMonth(m) {
   return m && typeof m.month === 'string' && /^\d{4}-\d{2}$/.test(m.month)
@@ -1706,7 +1716,7 @@ function sanitizeMonth(m) {
     actualPortfolio:     m.actualPortfolio  != null ? +m.actualPortfolio  : null,
     plannedContribution: m.plannedContribution != null ? +m.plannedContribution : 0,
     actualContribution:  m.actualContribution  != null ? +m.actualContribution  : 0,
-    note:                typeof m.note === 'string' ? m.note : '',
+    note:                typeof m.note === 'string' ? m.note.slice(0, 500) : '',
   }
 }
 
@@ -1738,7 +1748,7 @@ function sanitizeState(raw) {
         equities:          e.equities          != null ? +e.equities          : 0,
         optionsCollateral: e.optionsCollateral != null ? +e.optionsCollateral : 0,
         other:             e.other             != null ? +e.other             : 0,
-        note:              typeof e.note === 'string'  ? e.note               : '',
+        note:              typeof e.note === 'string'  ? e.note.slice(0, 500) : '',
       }))
     if (validBrk.length > 0) base.breakdown = validBrk
   }
@@ -1751,7 +1761,7 @@ function sanitizeState(raw) {
         premiumIncome:       e.premiumIncome    != null ? +e.premiumIncome    : 0,
         realizedOptionsPnL:  e.realizedOptionsPnL != null ? +e.realizedOptionsPnL : 0,
         capitalUsed:         e.capitalUsed      != null ? +e.capitalUsed      : 0,
-        note:                typeof e.note === 'string' ? e.note : '',
+        note:                typeof e.note === 'string' ? e.note.slice(0, 500) : '',
       }))
     if (validInc.length > 0) base.optionsIncome = validInc
   }
@@ -1789,7 +1799,9 @@ function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   } catch(e) {
     // localStorage full or unavailable (private mode etc.)
-    console.warn('WealthArc: could not save data.', e)
+    console.error('WealthArc: could not save data.', e)
+    // Notify user — toast may not be defined yet on first call, guard with typeof
+    if (typeof toast === 'function') toast('⚠ Save failed — storage full or unavailable')
   }
 }
 
@@ -1905,7 +1917,8 @@ function derive(){
   const nextMs=milestones.find(m=>m>last.actualPortfolio)||null
   let msPct=null,msRem=null,msEta=null
   if(nextMs){
-    msPct=Math.max(0,Math.min(100,((last.actualPortfolio-state.startValue)/(nextMs-state.startValue))*100))
+    const msDenom=nextMs-state.startValue
+    msPct=msDenom>0?Math.max(0,Math.min(100,((last.actualPortfolio-state.startValue)/msDenom)*100)):100
     msRem=nextMs-last.actualPortfolio
     if(tracked.length>=2){
       const avgM=(last.actualPortfolio-tracked[0].actualPortfolio)/(tracked.length-1)
@@ -1915,13 +1928,13 @@ function derive(){
   const totalGain=last.actualPortfolio-state.startValue
   const cPct=totalGain!==0?Math.max(-200,Math.min(200,(totA/totalGain)*100)):50
   let mom3=null,mom6=null
-  if(tracked.length>=4){mom3=((last.actualPortfolio-tracked[tracked.length-4].actualPortfolio)/tracked[tracked.length-4].actualPortfolio*100)}
-  if(tracked.length>=7){mom6=((last.actualPortfolio-tracked[tracked.length-7].actualPortfolio)/tracked[tracked.length-7].actualPortfolio*100)}
+  if(tracked.length>=4){const base3=tracked[tracked.length-4].actualPortfolio;if(base3>0)mom3=((last.actualPortfolio-base3)/base3*100)}
+  if(tracked.length>=7){const base6=tracked[tracked.length-7].actualPortfolio;if(base6>0)mom6=((last.actualPortfolio-base6)/base6*100)}
   const prevLast=tracked.length>=2?tracked[tracked.length-2]:null
   const monthlyChange=prevLast?last.actualPortfolio-prevLast.actualPortfolio:null
   const monthlyFromContrib=last.actualContribution||0
   const monthlyFromGrowth=monthlyChange!=null?monthlyChange-monthlyFromContrib:null
-  const rateNeeded=gap3!=null&&gap3<0&&msEta&&msEta>0?((tgt3-last.actualPortfolio)/last.actualPortfolio/msEta*100):null
+  const rateNeeded=gap3!=null&&gap3<0&&msEta&&msEta>0&&last.actualPortfolio>0?((tgt3-last.actualPortfolio)/last.actualPortfolio/msEta*100):null
 
   // ── TWR (Time-Weighted Return) ────────────────────────────────
   // Sub-period return: r_i = investmentPL / startPortfolio
@@ -2447,7 +2460,7 @@ function renderTimeline(){
         ${savingsHTML}
         ${splitHTML}
 
-        ${m.note?`<div style="font-size:11px;color:rgba(220,225,240,0.3);margin-top:10px;font-style:italic;line-height:1.4">${m.note}</div>`:''}
+        ${m.note?`<div style="font-size:11px;color:rgba(220,225,240,0.3);margin-top:10px;font-style:italic;line-height:1.4">${escapeHTML(m.note)}</div>`:''}
       </div>
     </div>`
   }).join('')
@@ -2507,13 +2520,28 @@ function saveMonth(){
   // If the field is disabled, autoStart is in control — read it directly from the input
   // (disabled inputs are readable via .value in JS even if not submitted in forms)
   const startVal = startInput.value !== '' ? +startInput.value : null
+  const portfolioRaw = document.getElementById('f-portfolio').value
+  const actualPortfolio = portfolioRaw !== '' ? +portfolioRaw : null
+  if (actualPortfolio !== null && (isNaN(actualPortfolio) || actualPortfolio < 0)) {
+    toast('Portfolio value must be a positive number'); return
+  }
+  const plannedRaw = document.getElementById('f-planned').value
+  const plannedContribution = plannedRaw !== '' ? +plannedRaw : 0
+  if (isNaN(plannedContribution) || plannedContribution < 0) {
+    toast('Planned contribution must be a positive number'); return
+  }
+  const actualCRaw = document.getElementById('f-actual-c').value
+  const actualContribution = actualCRaw !== '' ? +actualCRaw : 0
+  if (isNaN(actualContribution) || actualContribution < 0) {
+    toast('Actual contribution must be a positive number'); return
+  }
   const row={
     month:mo,
     startPortfolio:startVal,
-    actualPortfolio:document.getElementById('f-portfolio').value!==''?+document.getElementById('f-portfolio').value:null,
-    plannedContribution:document.getElementById('f-planned').value!==''?+document.getElementById('f-planned').value:0,
-    actualContribution:document.getElementById('f-actual-c').value!==''?+document.getElementById('f-actual-c').value:0,
-    note:document.getElementById('f-note').value.trim(),
+    actualPortfolio,
+    plannedContribution,
+    actualContribution,
+    note:document.getElementById('f-note').value.trim().slice(0, 500),
   }
   const idx=state.months.findIndex(m=>m.month===mo)
   if(idx>=0)state.months[idx]=row;else state.months.push(row)
@@ -3123,7 +3151,7 @@ function renderIncome(){
       <div class="inc-row-top">
         <div>
           <div class="inc-month">${fmtMo(e.month)}</div>
-          ${e.note?`<div style="font-size:10px;color:var(--mu);margin-top:2px;font-style:italic">${e.note}</div>`:''}
+          ${e.note?`<div style="font-size:10px;color:var(--mu);margin-top:2px;font-style:italic">${escapeHTML(e.note)}</div>`:''}
         </div>
         <div style="text-align:right">
           <div class="inc-premium cgo">${fmt(e.premiumIncome)}</div>
@@ -3477,7 +3505,7 @@ function renderBreakdown(){
       <div class="brk-row-top">
         <div>
           <div class="brk-row-month">${fmtMo(e.month)}</div>
-          ${e.note?`<div style="font-size:10px;color:var(--mu);margin-top:2px;font-style:italic">${e.note}</div>`:''}
+          ${e.note?`<div style="font-size:10px;color:var(--mu);margin-top:2px;font-style:italic">${escapeHTML(e.note)}</div>`:''}
         </div>
         <div class="brk-row-total">${fmt(tot)}</div>
       </div>
