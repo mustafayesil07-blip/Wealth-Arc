@@ -524,25 +524,12 @@ input:disabled{background:rgba(200,185,165,0.30);cursor:not-allowed}
 /* ── TOAST ── */
 #toast{
   position:fixed;bottom:102px;left:50%;transform:translateX(-50%);
-  background:rgba(45,36,32,0.94);
-  border:1px solid rgba(140,110,80,0.18);
+  background:rgba(45,36,32,0.95);
+  border:1px solid rgba(200,133,42,0.22);
   border-radius:12px;padding:10px 22px;
-  font-size:13px;font-weight:500;color:rgba(245,238,228,0.96);
-  z-index:300;box-shadow:0 4px 20px rgba(0,0,0,0.18);
-  white-space:nowrap;
-  transition:opacity 0.25s,transform 0.25s;
-}
-#toast.hidden{opacity:0;transform:translateX(-50%) translateY(8px);pointer-events:none}
-
-/* ── TOAST ── */
-#toast{
-  position:fixed;bottom:102px;left:50%;transform:translateX(-50%);
-  background:rgba(18,18,30,0.97);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:12px;padding:10px 22px;
-  font-size:13px;font-weight:500;color:var(--tx);
-  z-index:300;box-shadow:0 4px 28px rgba(0,0,0,0.45);
-  white-space:nowrap;
+  font-size:13px;font-weight:500;color:rgba(248,238,222,0.96);
+  z-index:300;box-shadow:0 4px 24px rgba(0,0,0,0.22);
+  white-space:nowrap;letter-spacing:0.01em;
   transition:opacity 0.25s,transform 0.25s;
 }
 #toast.hidden{opacity:0;transform:translateX(-50%) translateY(8px);pointer-events:none}
@@ -805,6 +792,65 @@ input[type="range"]::-moz-range-thumb{
 .confirm-msg{font-size:13px;color:var(--mu);line-height:1.6;margin-bottom:20px}
 .confirm-btns{display:flex;gap:10px}
 .confirm-btns .set-btn{flex:1;justify-content:center}
+
+/* ── MISSING / FIXED CLASSES ── */
+.stripe-amber{background:linear-gradient(180deg,var(--peach),rgba(212,149,106,0.25))}
+
+/* Gap row (dashboard) */
+.gap-row{display:flex;gap:8px;margin-bottom:14px}
+.gap-item{flex:1;background:rgba(255,252,248,0.80);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;text-align:center;box-shadow:0 2px 8px rgba(140,110,80,0.08)}
+.gap-item-lbl{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--mu);margin-bottom:5px}
+.gap-item-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--tx)}
+
+/* Contribution discipline row */
+.disc-row{display:flex;align-items:center;gap:8px;margin-top:10px}
+.disc-label{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--tx);min-width:38px;text-align:right}
+
+/* This Month Explained */
+.interp-card{background:rgba(255,252,248,0.80);border:1px solid var(--bd);border-radius:var(--r);padding:18px 20px 16px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(140,110,80,0.08)}
+.interp-lead{font-size:14.5px;font-weight:600;color:var(--tx);line-height:1.55;margin-bottom:10px}
+.interp-facts{display:flex;flex-wrap:wrap;gap:8px}
+.interp-fact{font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 10px;border-radius:20px;background:var(--sf2);border:1px solid var(--bd);color:var(--mu)}
+
+/* Wealth Signals */
+.signal-row{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.signal-chip{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,252,248,0.80);border:1px solid var(--bd);border-radius:12px;font-size:13px;color:var(--tx);line-height:1.45;box-shadow:0 2px 6px rgba(140,110,80,0.07)}
+.signal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sd-green{background:var(--green)}.sd-red{background:var(--red)}.sd-amber{background:var(--gold)}.sd-blue{background:var(--sky)}
+
+/* ── ANNUAL SUMMARY ── */
+.ann-section{margin-bottom:22px}
+.ann-section-title{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--mu);margin-bottom:10px;display:block}
+.ann-cards{display:flex;flex-direction:column;gap:8px}
+.ann-card{background:rgba(255,252,248,0.80);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;box-shadow:0 2px 8px rgba(140,110,80,0.08);position:relative;overflow:hidden}
+.ann-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--r) 0 0 var(--r)}
+.ann-card-pos::before{background:linear-gradient(180deg,var(--green),rgba(46,139,90,.2))}
+.ann-card-neg::before{background:linear-gradient(180deg,var(--red),rgba(192,57,74,.2))}
+.ann-card-neu::before{background:linear-gradient(180deg,var(--gold),rgba(200,133,42,.2))}
+.ann-year{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:var(--tx);margin-bottom:8px}
+.ann-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.ann-stat{display:flex;flex-direction:column;gap:2px}
+.ann-stat-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mu)}
+.ann-stat-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--tx)}
+
+/* ── SETTINGS: CURRENCY + MILESTONE ── */
+select.curr-select{
+  padding:7px 32px 7px 12px;
+  background:rgba(255,255,255,0.80) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a08060' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border:1px solid var(--bd);border-radius:9px;
+  color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+  transition:border-color .15s;
+}
+select.curr-select:focus{border-color:rgba(200,133,42,.5);box-shadow:0 0 0 3px rgba(200,133,42,.08)}
+
+.ms-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:28px}
+.ms-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px 5px 12px;background:var(--gold-dim);border:1px solid rgba(200,133,42,.28);border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--gold-d)}
+.ms-chip-del{background:none;border:none;cursor:pointer;color:var(--gold-d);padding:0;line-height:1;font-size:14px;opacity:.7;transition:opacity .15s}
+.ms-chip-del:hover{opacity:1}
+.ms-add-row{display:flex;gap:8px;align-items:center}
+.ms-add-row input{flex:1;padding:8px 12px;background:rgba(255,255,255,0.75);border:1px solid var(--bd);border-radius:9px;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;-webkit-appearance:none;transition:border-color .15s}
+.ms-add-row input:focus{border-color:rgba(200,133,42,.5)}
 
 /* ── TIMELINE CARD v2 ── */
 .mr-headline{
@@ -1139,6 +1185,7 @@ input[type="range"]::-moz-range-thumb{
       Add Month
     </button>
   </div>
+  <div id="annual-summary"></div>
   <div id="tl-list"></div>
 </div>
 </div>
@@ -1457,7 +1504,7 @@ input[type="range"]::-moz-range-thumb{
 <div class="set-container">
 
   <div class="set-title">Settings</div>
-  <div class="set-sub">Data management &amp; backup</div>
+  <div class="set-sub">Data management &amp; preferences</div>
 
   <!-- BACKUP ──────────────────────────────────────────────────── -->
   <div class="set-section">
@@ -1466,7 +1513,7 @@ input[type="range"]::-moz-range-thumb{
 
       <div class="set-row">
         <div class="set-row-left">
-          <div class="set-row-label">Export Data</div>
+          <div class="set-row-label">Export JSON</div>
           <div class="set-row-sub">Tüm verilerini JSON dosyası olarak indir. Yedek olarak sakla.</div>
         </div>
         <button class="set-btn set-btn-gold" onclick="exportData()">
@@ -1475,7 +1522,22 @@ input[type="range"]::-moz-range-thumb{
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          Export
+          JSON
+        </button>
+      </div>
+
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Export CSV</div>
+          <div class="set-row-sub">Timeline verisini Excel / Google Sheets uyumlu CSV olarak indir.</div>
+        </div>
+        <button class="set-btn set-btn-ghost" onclick="exportCSV()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          CSV
         </button>
       </div>
 
@@ -1498,10 +1560,11 @@ input[type="range"]::-moz-range-thumb{
     </div>
   </div>
 
-  <!-- START VALUE ─────────────────────────────────────────────── -->
+  <!-- PORTFOLIO SETTINGS ──────────────────────────────────────── -->
   <div class="set-section">
     <span class="set-section-title">Portfolio Settings</span>
     <div class="set-card">
+
       <div class="set-row">
         <div class="set-row-left">
           <div class="set-row-label">Starting Portfolio Value</div>
@@ -1513,6 +1576,56 @@ input[type="range"]::-moz-range-thumb{
             onfocus="this.style.borderColor='rgba(245,166,35,.5)'"
             onblur="this.style.borderColor='var(--bd)'"/>
           <button class="set-btn set-btn-gold" onclick="saveStartValue()">Save</button>
+        </div>
+      </div>
+
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Currency</div>
+          <div class="set-row-sub">Tüm para değerlerinde kullanılacak para birimi.</div>
+        </div>
+        <select class="curr-select" id="set-currency" onchange="saveCurrency()">
+          <option value="USD">$ USD</option>
+          <option value="EUR">€ EUR</option>
+          <option value="GBP">£ GBP</option>
+          <option value="TRY">₺ TRY</option>
+          <option value="JPY">¥ JPY</option>
+          <option value="CHF">Fr CHF</option>
+          <option value="AUD">A$ AUD</option>
+          <option value="CAD">C$ CAD</option>
+        </select>
+      </div>
+
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Monthly Benchmark Rate</div>
+          <div class="set-row-sub">Timeline'da kendi getirinizle karşılaştırılan aylık hedef oran (%).</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" id="set-benchmark" min="0" max="20" step="0.1"
+            style="width:80px;background:rgba(255,255,255,0.75);border:1px solid var(--bd);border-radius:9px;padding:7px 10px;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;text-align:right"
+            onfocus="this.style.borderColor='rgba(245,166,35,.5)'"
+            onblur="this.style.borderColor='var(--bd)'"/>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mu)">%/mo</span>
+          <button class="set-btn set-btn-gold" onclick="saveBenchmarkRate()">Save</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MILESTONES ──────────────────────────────────────────────── -->
+  <div class="set-section">
+    <span class="set-section-title">Milestones</span>
+    <div class="set-card">
+      <div class="set-row" style="flex-direction:column;align-items:flex-start;gap:12px">
+        <div class="ms-list" id="ms-chips"></div>
+        <div class="ms-add-row" style="width:100%">
+          <input type="number" id="ms-new-val" placeholder="e.g. 750000" min="1" step="1000"/>
+          <button class="set-btn set-btn-gold" onclick="addMilestone()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:13px;height:13px"><path d="M12 5v14M5 12h14"/></svg>
+            Add
+          </button>
         </div>
       </div>
     </div>
@@ -1643,6 +1756,10 @@ input[type="range"]::-moz-range-thumb{
         </div>
       </div>
       <div class="field" style="margin-top:4px">
+        <label class="lbl">Benchmark Return % <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional — override global rate)</span></label>
+        <input type="number" id="f-benchmark" placeholder="e.g. 1.5" step="0.01" min="-50" max="50"/>
+      </div>
+      <div class="field" style="margin-top:4px">
         <label class="lbl">Note (optional)</label>
         <input type="text" id="f-note" placeholder="e.g. Bonus month, market dip…" style="font-family:'DM Sans',sans-serif;font-size:14px"/>
       </div>
@@ -1664,6 +1781,8 @@ const STORAGE_KEY = 'wealtharc_v4'
 // ── Default seed data ───────────────────────────────────────────
 const SEED = {
   startValue: 122300,
+  currency: 'USD',
+  benchmarkRate: 3,
   milestones: [150000, 250000, 500000],
   months: [
     {month:'2025-11', startPortfolio:null,   actualPortfolio:122300, plannedContribution:7000,  actualContribution:7000,  note:''},
@@ -1694,6 +1813,16 @@ const SEED = {
   ]
 }
 
+// ── HTML escape helper (prevents XSS in note fields) ───────────
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // ── Validation helpers ──────────────────────────────────────────
 function isValidMonth(m) {
   return m && typeof m.month === 'string' && /^\d{4}-\d{2}$/.test(m.month)
@@ -1706,7 +1835,8 @@ function sanitizeMonth(m) {
     actualPortfolio:     m.actualPortfolio  != null ? +m.actualPortfolio  : null,
     plannedContribution: m.plannedContribution != null ? +m.plannedContribution : 0,
     actualContribution:  m.actualContribution  != null ? +m.actualContribution  : 0,
-    note:                typeof m.note === 'string' ? m.note : '',
+    benchmarkReturn:     m.benchmarkReturn   != null ? +m.benchmarkReturn  : null,
+    note:                typeof m.note === 'string' ? m.note.slice(0, 500) : '',
   }
 }
 
@@ -1718,6 +1848,13 @@ function sanitizeState(raw) {
   // Scalar fields
   if (typeof raw.startValue === 'number' && raw.startValue > 0)
     base.startValue = raw.startValue
+
+  const VALID_CURRENCIES = ['USD','EUR','GBP','TRY','JPY','CHF','AUD','CAD']
+  if (typeof raw.currency === 'string' && VALID_CURRENCIES.includes(raw.currency))
+    base.currency = raw.currency
+
+  if (typeof raw.benchmarkRate === 'number' && raw.benchmarkRate >= 0 && raw.benchmarkRate <= 20)
+    base.benchmarkRate = raw.benchmarkRate
 
   if (Array.isArray(raw.milestones) && raw.milestones.length)
     base.milestones = raw.milestones.map(Number).filter(n => n > 0)
@@ -1738,7 +1875,7 @@ function sanitizeState(raw) {
         equities:          e.equities          != null ? +e.equities          : 0,
         optionsCollateral: e.optionsCollateral != null ? +e.optionsCollateral : 0,
         other:             e.other             != null ? +e.other             : 0,
-        note:              typeof e.note === 'string'  ? e.note               : '',
+        note:              typeof e.note === 'string'  ? e.note.slice(0, 500) : '',
       }))
     if (validBrk.length > 0) base.breakdown = validBrk
   }
@@ -1751,7 +1888,7 @@ function sanitizeState(raw) {
         premiumIncome:       e.premiumIncome    != null ? +e.premiumIncome    : 0,
         realizedOptionsPnL:  e.realizedOptionsPnL != null ? +e.realizedOptionsPnL : 0,
         capitalUsed:         e.capitalUsed      != null ? +e.capitalUsed      : 0,
-        note:                typeof e.note === 'string' ? e.note : '',
+        note:                typeof e.note === 'string' ? e.note.slice(0, 500) : '',
       }))
     if (validInc.length > 0) base.optionsIncome = validInc
   }
@@ -1789,7 +1926,9 @@ function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   } catch(e) {
     // localStorage full or unavailable (private mode etc.)
-    console.warn('WealthArc: could not save data.', e)
+    console.error('WealthArc: could not save data.', e)
+    // Notify user — toast may not be defined yet on first call, guard with typeof
+    if (typeof toast === 'function') toast('⚠ Save failed — storage full or unavailable')
   }
 }
 
@@ -1806,16 +1945,21 @@ function resetData() {
 let state = loadData()
 
 // ─── FORMAT ───────────────────────────────────────────────────
+const CURRENCY_SYMBOLS = {USD:'$',EUR:'€',GBP:'£',TRY:'₺',JPY:'¥',CHF:'Fr',AUD:'A$',CAD:'C$'}
+function currencySymbol(){ return CURRENCY_SYMBOLS[state?.currency||'USD'] || '$' }
+
 function fmt(v){
   if(v==null||isNaN(v))return'—'
-  return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(v)
+  const cur = state?.currency || 'USD'
+  return new Intl.NumberFormat('en-US',{style:'currency',currency:cur,minimumFractionDigits:0,maximumFractionDigits:0}).format(v)
 }
 function fmtC(v){
   if(v==null)return'—'
+  const sym = currencySymbol()
   const a=Math.abs(v),s=v<0?'-':''
-  if(a>=1e6)return s+'$'+(a/1e6).toFixed(2)+'M'
-  if(a>=1e3)return s+'$'+(a/1e3).toFixed(1)+'K'
-  return s+'$'+Math.round(a)
+  if(a>=1e6)return s+sym+(a/1e6).toFixed(2)+'M'
+  if(a>=1e3)return s+sym+(a/1e3).toFixed(1)+'K'
+  return s+sym+Math.round(a)
 }
 function fmtMo(str){
   try{const[y,m]=str.split('-');return new Date(+y,+m-1,1).toLocaleString('en-US',{month:'short',year:'numeric'})}catch(_){return str}
@@ -1905,7 +2049,8 @@ function derive(){
   const nextMs=milestones.find(m=>m>last.actualPortfolio)||null
   let msPct=null,msRem=null,msEta=null
   if(nextMs){
-    msPct=Math.max(0,Math.min(100,((last.actualPortfolio-state.startValue)/(nextMs-state.startValue))*100))
+    const msDenom=nextMs-state.startValue
+    msPct=msDenom>0?Math.max(0,Math.min(100,((last.actualPortfolio-state.startValue)/msDenom)*100)):100
     msRem=nextMs-last.actualPortfolio
     if(tracked.length>=2){
       const avgM=(last.actualPortfolio-tracked[0].actualPortfolio)/(tracked.length-1)
@@ -1915,13 +2060,13 @@ function derive(){
   const totalGain=last.actualPortfolio-state.startValue
   const cPct=totalGain!==0?Math.max(-200,Math.min(200,(totA/totalGain)*100)):50
   let mom3=null,mom6=null
-  if(tracked.length>=4){mom3=((last.actualPortfolio-tracked[tracked.length-4].actualPortfolio)/tracked[tracked.length-4].actualPortfolio*100)}
-  if(tracked.length>=7){mom6=((last.actualPortfolio-tracked[tracked.length-7].actualPortfolio)/tracked[tracked.length-7].actualPortfolio*100)}
+  if(tracked.length>=4){const base3=tracked[tracked.length-4].actualPortfolio;if(base3>0)mom3=((last.actualPortfolio-base3)/base3*100)}
+  if(tracked.length>=7){const base6=tracked[tracked.length-7].actualPortfolio;if(base6>0)mom6=((last.actualPortfolio-base6)/base6*100)}
   const prevLast=tracked.length>=2?tracked[tracked.length-2]:null
   const monthlyChange=prevLast?last.actualPortfolio-prevLast.actualPortfolio:null
   const monthlyFromContrib=last.actualContribution||0
   const monthlyFromGrowth=monthlyChange!=null?monthlyChange-monthlyFromContrib:null
-  const rateNeeded=gap3!=null&&gap3<0&&msEta&&msEta>0?((tgt3-last.actualPortfolio)/last.actualPortfolio/msEta*100):null
+  const rateNeeded=gap3!=null&&gap3<0&&msEta&&msEta>0&&last.actualPortfolio>0?((tgt3-last.actualPortfolio)/last.actualPortfolio/msEta*100):null
 
   // ── TWR (Time-Weighted Return) ────────────────────────────────
   // Sub-period return: r_i = investmentPL / startPortfolio
@@ -2304,10 +2449,82 @@ function renderDashboard(){
 }
 
 // ─── TIMELINE ─────────────────────────────────────────────────
+function renderAnnualSummary(ms){
+  const ann = document.getElementById('annual-summary')
+  if(!ann) return
+  if(ms.length < 2){ ann.innerHTML=''; return }
+
+  // Group months by year
+  const byYear = {}
+  ms.forEach((m, i) => {
+    const yr = m.month.slice(0,4)
+    if(!byYear[yr]) byYear[yr] = []
+    byYear[yr].push({m, idx: i})
+  })
+
+  const years = Object.keys(byYear).sort()
+  if(years.length < 1){ ann.innerHTML=''; return }
+
+  const cards = years.map(yr => {
+    const entries = byYear[yr]
+    const first = entries[0]
+    const last  = entries[entries.length-1]
+
+    // Start value: startPortfolio of first month, or prev month's actual
+    const startVal = first.idx > 0 ? ms[first.idx-1].actualPortfolio : (first.m.startPortfolio ?? state.startValue)
+    const endVal   = last.m.actualPortfolio
+
+    if(startVal == null || endVal == null){ return '' }
+
+    const totalContrib = entries.reduce((s,e) => s + (e.m.actualContribution||0), 0)
+    const investGain   = endVal - startVal - totalContrib
+    const annReturn    = startVal > 0 ? ((endVal - startVal) / startVal * 100) : null
+    const isPos        = investGain >= 0
+    const cardCls      = annReturn == null ? 'ann-card-neu' : annReturn >= 0 ? 'ann-card-pos' : 'ann-card-neg'
+    const gainCls      = isPos ? 'cg' : 'cr'
+    const retStr       = annReturn != null ? ((annReturn>=0?'+':'')+annReturn.toFixed(1)+'%') : '—'
+    const retCls       = annReturn==null?'cm':annReturn>=0?'cg':'cr'
+
+    return `<div class="ann-card ${cardCls}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="ann-year">${yr}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700" class="${retCls}">${retStr}</div>
+      </div>
+      <div class="ann-grid">
+        <div class="ann-stat">
+          <div class="ann-stat-lbl">Start</div>
+          <div class="ann-stat-val">${fmtC(startVal)}</div>
+        </div>
+        <div class="ann-stat">
+          <div class="ann-stat-lbl">End</div>
+          <div class="ann-stat-val">${fmtC(endVal)}</div>
+        </div>
+        <div class="ann-stat">
+          <div class="ann-stat-lbl">Inv. Gain</div>
+          <div class="ann-stat-val ${gainCls}">${isPos?'+':''}${fmtC(investGain)}</div>
+        </div>
+        <div class="ann-stat">
+          <div class="ann-stat-lbl">Contributions</div>
+          <div class="ann-stat-val">${fmtC(totalContrib)}</div>
+        </div>
+        <div class="ann-stat">
+          <div class="ann-stat-lbl">Months</div>
+          <div class="ann-stat-val">${entries.length}</div>
+        </div>
+      </div>
+    </div>`
+  }).filter(Boolean).join('')
+
+  ann.innerHTML = cards
+    ? `<div class="ann-section"><span class="ann-section-title">Annual Summary</span><div class="ann-cards">${cards}</div></div>`
+    : ''
+}
+
 function renderTimeline(){
   const ms=sorted()
   const t3=genT(state.startValue,ms,0.03)
   document.getElementById('tl-count').textContent=ms.length+' month'+(ms.length!==1?'s':'')+' tracked'
+  renderAnnualSummary(ms)
   const list=document.getElementById('tl-list')
   if(!ms.length){
     list.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><p>No months yet.<br>Tap <strong style="color:var(--tx)">Add Month</strong> to start.</p></div>'
@@ -2348,7 +2565,8 @@ function renderTimeline(){
       const plColor = perf.investmentPL >= 0 ? 'color:var(--green)' : 'color:var(--red)'
       const pctSign = perf.returnPct >= 0 ? '+' : ''
       const pctStr  = perf.returnPct != null ? `${pctSign}${perf.returnPct.toFixed(2)}%` : '—'
-      const bmarkDiff = perf.returnPct != null ? perf.returnPct - 3 : null
+      const bRate = m.benchmarkReturn != null ? m.benchmarkReturn : (state.benchmarkRate ?? 3)
+      const bmarkDiff = perf.returnPct != null ? perf.returnPct - bRate : null
       const bmarkSign = bmarkDiff!=null && bmarkDiff>=0 ? '+' : ''
       const bmarkColor = bmarkDiff==null ? '' : bmarkDiff>=0 ? 'color:var(--green)' : 'color:var(--red)'
       const bmarkStr = bmarkDiff!=null ? `${bmarkSign}${bmarkDiff.toFixed(2)}%` : '—'
@@ -2371,7 +2589,7 @@ function renderTimeline(){
         <span class="mr-bench-sep">vs</span>
         <div class="mr-bench-item">
           <span class="mr-bench-lbl">Benchmark</span>
-          <span class="mr-bench-val" style="color:var(--lavender)">+3.00%</span>
+          <span class="mr-bench-val" style="color:var(--lavender)">${m.benchmarkReturn!=null?((m.benchmarkReturn>=0?'+':'')+m.benchmarkReturn.toFixed(2)+'%'):((state.benchmarkRate>=0?'+':'')+state.benchmarkRate.toFixed(2)+'%')}</span>
         </div>
         <span class="mr-bench-sep">·</span>
         <div class="mr-bench-item">
@@ -2447,7 +2665,7 @@ function renderTimeline(){
         ${savingsHTML}
         ${splitHTML}
 
-        ${m.note?`<div style="font-size:11px;color:rgba(220,225,240,0.3);margin-top:10px;font-style:italic;line-height:1.4">${m.note}</div>`:''}
+        ${m.note?`<div style="font-size:11px;color:var(--mu);margin-top:10px;font-style:italic;line-height:1.4">${escapeHTML(m.note)}</div>`:''}
       </div>
     </div>`
   }).join('')
@@ -2478,6 +2696,7 @@ function openModal(ms){
     document.getElementById('f-portfolio').value=m?.actualPortfolio??''
     document.getElementById('f-planned').value=m?.plannedContribution??''
     document.getElementById('f-actual-c').value=m?.actualContribution??''
+    document.getElementById('f-benchmark').value=m?.benchmarkReturn??''
     document.getElementById('f-note').value=m?.note??''
     document.getElementById('del-btn').style.display='flex'
   } else {
@@ -2492,6 +2711,7 @@ function openModal(ms){
     document.getElementById('f-portfolio').value=''
     document.getElementById('f-planned').value=''
     document.getElementById('f-actual-c').value=''
+    document.getElementById('f-benchmark').value=''
     document.getElementById('f-note').value=''
     document.getElementById('del-btn').style.display='none'
   }
@@ -2507,13 +2727,31 @@ function saveMonth(){
   // If the field is disabled, autoStart is in control — read it directly from the input
   // (disabled inputs are readable via .value in JS even if not submitted in forms)
   const startVal = startInput.value !== '' ? +startInput.value : null
+  const portfolioRaw = document.getElementById('f-portfolio').value
+  const actualPortfolio = portfolioRaw !== '' ? +portfolioRaw : null
+  if (actualPortfolio !== null && (isNaN(actualPortfolio) || actualPortfolio < 0)) {
+    toast('Portfolio value must be a positive number'); return
+  }
+  const plannedRaw = document.getElementById('f-planned').value
+  const plannedContribution = plannedRaw !== '' ? +plannedRaw : 0
+  if (isNaN(plannedContribution) || plannedContribution < 0) {
+    toast('Planned contribution must be a positive number'); return
+  }
+  const actualCRaw = document.getElementById('f-actual-c').value
+  const actualContribution = actualCRaw !== '' ? +actualCRaw : 0
+  if (isNaN(actualContribution) || actualContribution < 0) {
+    toast('Actual contribution must be a positive number'); return
+  }
+  const benchmarkRaw = document.getElementById('f-benchmark').value
+  const benchmarkReturn = benchmarkRaw !== '' ? +benchmarkRaw : null
   const row={
     month:mo,
     startPortfolio:startVal,
-    actualPortfolio:document.getElementById('f-portfolio').value!==''?+document.getElementById('f-portfolio').value:null,
-    plannedContribution:document.getElementById('f-planned').value!==''?+document.getElementById('f-planned').value:0,
-    actualContribution:document.getElementById('f-actual-c').value!==''?+document.getElementById('f-actual-c').value:0,
-    note:document.getElementById('f-note').value.trim(),
+    actualPortfolio,
+    plannedContribution,
+    actualContribution,
+    benchmarkReturn: benchmarkReturn !== null && !isNaN(benchmarkReturn) ? benchmarkReturn : null,
+    note:document.getElementById('f-note').value.trim().slice(0, 500),
   }
   const idx=state.months.findIndex(m=>m.month===mo)
   if(idx>=0)state.months[idx]=row;else state.months.push(row)
@@ -3123,7 +3361,7 @@ function renderIncome(){
       <div class="inc-row-top">
         <div>
           <div class="inc-month">${fmtMo(e.month)}</div>
-          ${e.note?`<div style="font-size:10px;color:var(--mu);margin-top:2px;font-style:italic">${e.note}</div>`:''}
+          ${e.note?`<div style="font-size:10px;color:var(--mu);margin-top:2px;font-style:italic">${escapeHTML(e.note)}</div>`:''}
         </div>
         <div style="text-align:right">
           <div class="inc-premium cgo">${fmt(e.premiumIncome)}</div>
@@ -3477,7 +3715,7 @@ function renderBreakdown(){
       <div class="brk-row-top">
         <div>
           <div class="brk-row-month">${fmtMo(e.month)}</div>
-          ${e.note?`<div style="font-size:10px;color:var(--mu);margin-top:2px;font-style:italic">${e.note}</div>`:''}
+          ${e.note?`<div style="font-size:10px;color:var(--mu);margin-top:2px;font-style:italic">${escapeHTML(e.note)}</div>`:''}
         </div>
         <div class="brk-row-total">${fmt(tot)}</div>
       </div>
@@ -3567,11 +3805,94 @@ function deleteBrkEntry(){
 // ═══════════════════════════════════════════════════════════════
 
 function renderSettings(){
-  // Populate start value input
   document.getElementById('set-startval').value = state.startValue || ''
+  document.getElementById('set-benchmark').value = state.benchmarkRate ?? 3
+  const currSel = document.getElementById('set-currency')
+  if(currSel) currSel.value = state.currency || 'USD'
+  renderMilestoneSettings()
 }
 
-// ── Export ─────────────────────────────────────────────────────
+function renderMilestoneSettings(){
+  const el = document.getElementById('ms-chips')
+  if(!el) return
+  const mils = (state.milestones || []).slice().sort((a,b)=>a-b)
+  el.innerHTML = mils.map((v,i) =>
+    `<span class="ms-chip">${fmtC(v)}<button class="ms-chip-del" onclick="deleteMilestone(${i})" title="Remove">×</button></span>`
+  ).join('') || '<span style="font-size:12px;color:var(--mu)">No milestones set</span>'
+}
+
+function addMilestone(){
+  const inp = document.getElementById('ms-new-val')
+  const v = +inp.value
+  if(!v || v <= 0){ toast('Enter a valid milestone value'); return }
+  if((state.milestones||[]).includes(v)){ toast('Already added'); return }
+  if(!state.milestones) state.milestones = []
+  state.milestones.push(v)
+  state.milestones.sort((a,b)=>a-b)
+  inp.value = ''
+  save(); renderMilestoneSettings(); render(); toast('Milestone added ✓')
+}
+
+function deleteMilestone(idx){
+  const mils = (state.milestones||[]).slice().sort((a,b)=>a-b)
+  mils.splice(idx,1)
+  state.milestones = mils
+  save(); renderMilestoneSettings(); render(); toast('Removed')
+}
+
+function saveCurrency(){
+  const v = document.getElementById('set-currency').value
+  const VALID = ['USD','EUR','GBP','TRY','JPY','CHF','AUD','CAD']
+  if(!VALID.includes(v)){ toast('Invalid currency'); return }
+  state.currency = v
+  save(); render(); toast('Currency updated ✓')
+}
+
+function saveBenchmarkRate(){
+  const v = +document.getElementById('set-benchmark').value
+  if(isNaN(v)||v<0||v>20){ toast('Enter a value between 0 and 20'); return }
+  state.benchmarkRate = v
+  save(); render(); toast('Benchmark rate updated ✓')
+}
+
+// ── CSV Export ─────────────────────────────────────────────────
+function exportCSV(){
+  try {
+    const ms = sorted()
+    const sym = currencySymbol()
+    const rows = [
+      ['Month','Start Portfolio','End Portfolio','Planned Contribution','Actual Contribution','Benchmark Return %','Investment PL','Return %','Note']
+    ]
+    ms.forEach((m, i) => {
+      const prevM = i > 0 ? ms[i-1] : null
+      const perf  = calcMonthPerf(m, prevM)
+      rows.push([
+        m.month,
+        m.startPortfolio ?? '',
+        m.actualPortfolio ?? '',
+        m.plannedContribution || 0,
+        m.actualContribution  || 0,
+        m.benchmarkReturn != null ? m.benchmarkReturn : '',
+        perf.investmentPL != null ? perf.investmentPL.toFixed(0) : '',
+        perf.returnPct    != null ? perf.returnPct.toFixed(4)    : '',
+        m.note || ''
+      ])
+    })
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+    const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8'})
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    const date = new Date().toISOString().slice(0,10)
+    a.href = url; a.download = `wealtharc-timeline-${date}.csv`
+    document.body.appendChild(a); a.click()
+    document.body.removeChild(a); URL.revokeObjectURL(url)
+    toast('CSV indirildi ✓')
+  } catch(e) {
+    toast('CSV export başarısız'); console.error(e)
+  }
+}
+
+// ── JSON Export ─────────────────────────────────────────────────
 function exportData(){
   try {
     const json = JSON.stringify(state, null, 2)
