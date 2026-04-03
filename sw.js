@@ -1,8 +1,22 @@
-const CACHE = 'wealtharc-v4';
+const CACHE = 'wealtharc-v5';
 const CORE = ['/Wealth-Arc/', '/Wealth-Arc/index.html'];
 
 self.addEventListener('install', function(e) {
-  e.waitUntil(caches.open(CACHE).then(function(c) { return c.addAll(CORE); }));
+  // Offline'da install başarısız olmasın diye hataları yakala
+  e.waitUntil(
+    caches.open(CACHE).then(function(c) {
+      return Promise.all(CORE.map(function(url) {
+        return fetch(url, {cache: 'no-store'}).then(function(r) {
+          if (r && r.status === 200) return c.put(url, r);
+        }).catch(function() {
+          // Offline'da fetch başarısız olursa eski cache'i kopyala
+          return caches.match(url).then(function(old) {
+            if (old) return c.put(url, old);
+          });
+        });
+      }));
+    })
+  );
   self.skipWaiting();
 });
 
@@ -15,22 +29,6 @@ self.addEventListener('activate', function(e) {
 
 self.addEventListener('fetch', function(e) {
   if (e.request.method !== 'GET') return;
-  // HTML için her zaman network-first: önce sunucudan al, cache'i güncelle
-  if (e.request.mode === 'navigate' || e.request.url.endsWith('.html')) {
-    e.respondWith(
-      fetch(e.request).then(function(response) {
-        if (response && response.status === 200) {
-          var clone = response.clone();
-          caches.open(CACHE).then(function(c) { c.put(e.request, clone); });
-        }
-        return response;
-      }).catch(function() {
-        return caches.match(e.request);
-      })
-    );
-    return;
-  }
-  // Diğer dosyalar için cache-first
   e.respondWith(
     caches.match(e.request).then(function(cached) {
       if (cached) return cached;
