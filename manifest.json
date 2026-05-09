@@ -1,13 +1,13 @@
 {
-  "name": "WealthArc",
-  "short_name": "WealthArc",
-  "description": "Personal wealth tracker",
-  "start_url": "/Wealth-Arc/index.html",
-  "scope": "/Wealth-Arc/",
+  "name": "Pilot Airmanship Companion",
+  "short_name": "PAC",
+  "description": "Non-normal airmanship actions reference for pilots",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f5f0eb",
-  "theme_color": "#f5f0eb",
+  "background_color": "#080E1C",
+  "theme_color": "#080E1C",
   "icons": [
     {
       "src": "./icon-192.png",
