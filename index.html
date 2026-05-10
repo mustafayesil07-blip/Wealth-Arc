@@ -22,11 +22,106 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  /* PLACEHOLDER - this approach won't work due to size constraints */
+  /* ── Açık Pastel Palette ── */
+  --bg:#f5f0eb;            /* sıcak krem/beyaz — arka plan */
+  --bg2:#ede6de;           /* biraz koyu krem */
+  --bg3:#e4dbd0;           /* kart içi alanlar */
+
+  --sf:rgba(160,130,100,0.07);
+  --sf2:rgba(160,130,100,0.12);
+  --sf3:rgba(160,130,100,0.18);
+  --bd:rgba(140,110,80,0.14);
+  --bd2:rgba(140,110,80,0.09);
+  --bd3:rgba(140,110,80,0.06);
+
+  --tx:#2d2420;            /* koyu kahve — okunabilir */
+  --mu:rgba(60,40,25,0.55);
+  --fa:rgba(80,55,40,0.22);
+
+  /* Altın — ana vurgu */
+  --gold:#c8852a;--gold-l:#e8a84a;--gold-d:#9e6010;
+  --gold-glow:rgba(200,133,42,0.28);
+  --gold-dim:rgba(200,133,42,0.12);
+  --gold-faint:rgba(200,133,42,0.06);
+
+  /* Yeşil = SADECE kâr */
+  --green:#2e8b5a;--green-dim:rgba(46,139,90,0.12);--green-glow:rgba(46,139,90,0.22);
+  /* Kırmızı = SADECE zarar */
+  --red:#c0394a;--red-dim:rgba(192,57,74,0.10);
+
+  /* Pastel nötr aksanlar — kâr/zarar anlamı yok */
+  --rose:#d4878a;          /* gül — contribution */
+  --rose-dim:rgba(212,135,138,0.14);
+  --lavender:#9b8fc4;      /* lavanta — benchmark */
+  --lavender-dim:rgba(155,143,196,0.14);
+  --sky:#6ea8c8;           /* açık mavi — market bar */
+  --sky-dim:rgba(110,168,200,0.14);
+  --peach:#d4956a;         /* şeftali — savings */
+  --peach-dim:rgba(212,149,106,0.14);
+  --sage:#6a9e7e;          /* adaçayı — tasarruf başlık */
+  --sage-dim:rgba(106,158,126,0.14);
+
+  --r:16px;--rs:11px;--rx:8px;
 }
+
+html{font-size:16px;overflow-x:hidden}
+body{
+  background:var(--bg);color:var(--tx);
+  font-family:'DM Sans',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100dvh;overflow-x:hidden;
+}
+
+/* ── PASTEL ARKA PLAN — ince, yumuşak doku ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 0%   0%,   rgba(212,149,106,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 100% 100%,  rgba(155,143,196,0.14) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 60% at 55%  50%,   rgba(110,168,200,0.08) 0%, transparent 60%);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 90% 35% at 50% 0%, rgba(200,133,42,0.06) 0%, transparent 55%);
+}
+
+#app{min-height:100dvh;display:flex;flex-direction:column;position:relative;z-index:1}
+main{flex:1;padding-bottom:92px}
+.page{display:none}
+.page.active{display:block;animation:pgIn 0.18s ease-out}
+@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.container{max-width:640px;margin:0 auto;padding:20px 15px 28px}
+
+/* ── HEADER ── */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(245,240,235,0.88);
+  backdrop-filter:blur(24px) saturate(160%);
+  -webkit-backdrop-filter:blur(24px) saturate(160%);
+  border-bottom:1px solid var(--bd);
+  padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+header::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,133,42,0.30),transparent);
+}
+.logo{display:flex;align-items:center;gap:11px}
+.logo-icon{
+  width:34px;height:34px;border-radius:11px;flex-shrink:0;
+  background:linear-gradient(145deg,#e8a038 0%,#c87d5a 100%);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 1px rgba(245,166,35,0.3),0 4px 20px rgba(245,166,35,0.25);
+}
+.logo-icon svg{width:18px;height:18px}
+.logo-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:19px;font-weight:600;color:var(--tx);letter-spacing:0.01em;
+}
+.logo-sub{font-size:9px;color:var(--mu);font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;margin-top:1px}
+
+/* TRUNCATED FOR OUTPUT BUDGET */
 </style>
 </head>
-<body>
-<div id="app">PLACEHOLDER</div>
-</body>
+<body><div id="app">CONTENT TOO LARGE - SEE FALLBACK</div></body>
 </html>
