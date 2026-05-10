@@ -19,109 +19,966 @@
 <title>WealthArc</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  /* ── Açık Pastel Palette ── */
-  --bg:#f5f0eb;            /* sıcak krem/beyaz — arka plan */
-  --bg2:#ede6de;           /* biraz koyu krem */
-  --bg3:#e4dbd0;           /* kart içi alanlar */
-
-  --sf:rgba(160,130,100,0.07);
-  --sf2:rgba(160,130,100,0.12);
-  --sf3:rgba(160,130,100,0.18);
-  --bd:rgba(140,110,80,0.14);
-  --bd2:rgba(140,110,80,0.09);
-  --bd3:rgba(140,110,80,0.06);
-
-  --tx:#2d2420;            /* koyu kahve — okunabilir */
-  --mu:rgba(60,40,25,0.55);
-  --fa:rgba(80,55,40,0.22);
-
-  /* Altın — ana vurgu */
-  --gold:#c8852a;--gold-l:#e8a84a;--gold-d:#9e6010;
-  --gold-glow:rgba(200,133,42,0.28);
-  --gold-dim:rgba(200,133,42,0.12);
-  --gold-faint:rgba(200,133,42,0.06);
-
-  /* Yeşil = SADECE kâr */
-  --green:#2e8b5a;--green-dim:rgba(46,139,90,0.12);--green-glow:rgba(46,139,90,0.22);
-  /* Kırmızı = SADECE zarar */
-  --red:#c0394a;--red-dim:rgba(192,57,74,0.10);
-
-  /* Pastel nötr aksanlar — kâr/zarar anlamı yok */
-  --rose:#d4878a;          /* gül — contribution */
-  --rose-dim:rgba(212,135,138,0.14);
-  --lavender:#9b8fc4;      /* lavanta — benchmark */
-  --lavender-dim:rgba(155,143,196,0.14);
-  --sky:#6ea8c8;           /* açık mavi — market bar */
-  --sky-dim:rgba(110,168,200,0.14);
-  --peach:#d4956a;         /* şeftali — savings */
-  --peach-dim:rgba(212,149,106,0.14);
-  --sage:#6a9e7e;          /* adaçayı — tasarruf başlık */
-  --sage-dim:rgba(106,158,126,0.14);
-
-  --r:16px;--rs:11px;--rx:8px;
-}
-
-html{font-size:16px;overflow-x:hidden}
-body{
-  background:var(--bg);color:var(--tx);
-  font-family:'DM Sans',system-ui,sans-serif;
-  -webkit-font-smoothing:antialiased;
-  min-height:100dvh;overflow-x:hidden;
-}
-
-/* ── PASTEL ARKA PLAN — ince, yumuşak doku ── */
-body::before{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse 70% 50% at 0%   0%,   rgba(212,149,106,0.18) 0%, transparent 55%),
-    radial-gradient(ellipse 55% 45% at 100% 100%,  rgba(155,143,196,0.14) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 60% at 55%  50%,   rgba(110,168,200,0.08) 0%, transparent 60%);
-}
-body::after{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:radial-gradient(ellipse 90% 35% at 50% 0%, rgba(200,133,42,0.06) 0%, transparent 55%);
-}
-
-#app{min-height:100dvh;display:flex;flex-direction:column;position:relative;z-index:1}
-main{flex:1;padding-bottom:92px}
-.page{display:none}
-.page.active{display:block;animation:pgIn 0.18s ease-out}
-@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.container{max-width:640px;margin:0 auto;padding:20px 15px 28px}
-
-/* ── HEADER ── */
-header{
-  position:sticky;top:0;z-index:100;
-  background:rgba(245,240,235,0.88);
-  backdrop-filter:blur(24px) saturate(160%);
-  -webkit-backdrop-filter:blur(24px) saturate(160%);
-  border-bottom:1px solid var(--bd);
-  padding:12px 16px;
-  display:flex;align-items:center;justify-content:space-between;
-}
-header::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(200,133,42,0.30),transparent);
-}
-.logo{display:flex;align-items:center;gap:11px}
-.logo-icon{
-  width:34px;height:34px;border-radius:11px;flex-shrink:0;
-  background:linear-gradient(145deg,#e8a038 0%,#c87d5a 100%);
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 0 1px rgba(245,166,35,0.3),0 4px 20px rgba(245,166,35,0.25);
-}
-.logo-icon svg{width:18px;height:18px}
-.logo-name{
-  font-family:'Cormorant Garamond',serif;
-  font-size:19px;font-weight:600;color:var(--tx);letter-spacing:0.01em;
-}
-.logo-sub{font-size:9px;color:var(--mu);font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;margin-top:1px}
-
-/* TRUNCATED FOR OUTPUT BUDGET */
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
-<body><div id="app">CONTENT TOO LARGE - SEE FALLBACK</div></body>
+<body>
+<div id="app">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 13 L6 8 L9.5 10.5 L14 5 L16 7"/>
+        <circle cx="16" cy="7" r="1.4" fill="white" stroke="none"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-name">WealthArc</div>
+      <div class="logo-sub">Portfolio OS</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ══ DASHBOARD ══════════════════════════════════════════════ -->
+<div id="page-dashboard" class="page active">
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero-section">
+    <div class="hero-badge hb-flat" id="dash-badge">● LOADING</div>
+    <div class="hero-val" id="dash-value">—</div>
+    <div class="hero-meta">
+      <span class="hero-month" id="dash-month">—</span>
+      <span class="gap-pill pill-flat" id="dash-gap-pill">—</span>
+    </div>
+  </div>
+
+  <!-- ON TRACK + MILESTONE side by side -->
+  <div class="g2 sg">
+
+    <!-- On Track -->
+    <div class="card cp glow-gold" id="dash-ontrack-card">
+      <span class="lbl" style="margin-bottom:8px">On Track</span>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:500;color:var(--tx);line-height:1;margin-bottom:4px" id="dash-pct-big">—</div>
+      <div style="font-size:11px;color:var(--mu);margin-bottom:10px" id="dash-ontrack-sub">vs 3% target</div>
+      <div class="pbar"><div class="pfill pg" id="dash-pbar" style="width:0%"></div></div>
+      <div style="font-size:11px;color:var(--mu);margin-top:8px;line-height:1.4" id="dash-ontrack-msg">—</div>
+    </div>
+
+    <!-- Next Milestone -->
+    <div class="card cp glow-violet" id="dash-ms-card">
+      <span class="lbl" style="margin-bottom:8px">Milestone</span>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500;color:var(--gold);margin-bottom:2px" id="d-ms-val">—</div>
+      <div style="font-size:11px;color:var(--mu);margin-bottom:10px" id="d-ms-rem">—</div>
+      <div class="pbar"><div class="pfill pg" id="d-ms-bar" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mu)" id="d-ms-pct">—</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mu)" id="d-ms-eta">—</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TWR CARD -->
+  <div class="card cp sg" id="twr-card">
+    <span class="lbl" style="margin-bottom:14px">Time-Weighted Return</span>
+    <div class="g3">
+      <div>
+        <div class="slbl">Bu Ay</div>
+        <div class="sval" id="twr-monthly">—</div>
+        <div class="ssub">son ay getirisi</div>
+      </div>
+      <div>
+        <div class="slbl">YTD</div>
+        <div class="sval" id="twr-ytd">—</div>
+        <div class="ssub" id="twr-ytd-lbl">bu yıl</div>
+      </div>
+      <div>
+        <div class="slbl">Kümülatif</div>
+        <div class="sval" id="twr-cum">—</div>
+        <div class="ssub">tüm dönem</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--bd2);font-size:11px;color:var(--mu);line-height:1.5">
+      Katkıların zamanlamasından bağımsız, saf piyasa performansı. Her ayın getirisi zincir çarpımıyla birleştirilir.
+    </div>
+  </div>
+
+  <!-- CHART CARD -->
+  <div class="card cp sg-lg" style="box-shadow:0 2px 12px rgba(140,110,80,0.10),inset 0 1px 0 rgba(255,255,255,0.7)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div>
+        <span class="lbl" style="margin-bottom:4px">Trajectory</span>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--tx)">Portfolio vs Targets</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mu)">2% · 3% · 4%</div>
+        <button class="chart-expand-btn" onclick="openChartModal()">⛶ Genişlet</button>
+      </div>
+    </div>
+    <div class="chart-wrap" style="position:relative">
+      <canvas id="main-chart"></canvas>
+      <div id="chart-tooltip">
+        <div class="tt-date" id="tt-date">—</div>
+        <div class="tt-row"><span class="tt-lbl">Actual</span><span class="tt-val" id="tt-actual">—</span></div>
+        <div class="tt-row"><span class="tt-lbl">2% Hedef</span><span class="tt-val" id="tt-t2">—</span></div>
+        <div class="tt-row"><span class="tt-lbl">3% Hedef</span><span class="tt-val" id="tt-t3">—</span></div>
+        <div class="tt-row"><span class="tt-lbl">4% Hedef</span><span class="tt-val" id="tt-t4">—</span></div>
+      </div>
+    </div>
+    <!-- summary row under chart -->
+    <div class="chart-summary">
+      <div class="cs-item">
+        <div class="cs-lbl">Actual</div>
+        <div class="cs-val cgo" id="cs-actual">—</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-lbl">Base Target</div>
+        <div class="cs-val cm" id="cs-target">—</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-lbl">Gap</div>
+        <div class="cs-val" id="cs-gap">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART FULLSCREEN MODAL -->
+  <div id="chart-modal" class="hidden" onclick="closeChartModal(event)">
+    <div id="chart-modal-inner" onclick="event.stopPropagation()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:rgba(255,240,210,0.95)">Portfolio vs Targets</div>
+          <div style="font-size:11px;color:rgba(255,240,210,0.45);margin-top:2px">Dokunarak değerleri görün</div>
+        </div>
+        <button class="chart-modal-close" onclick="closeChartModal()">✕ Kapat</button>
+      </div>
+      <div id="chart-modal-canvas-wrap" style="position:relative;flex:1;min-height:0">
+        <canvas id="modal-chart"></canvas>
+        <div id="chart-modal-tooltip" style="position:absolute;background:rgba(20,16,10,0.96);border:1px solid rgba(245,180,60,0.35);border-radius:10px;padding:9px 12px;pointer-events:none;display:none;z-index:50;min-width:140px;box-shadow:0 4px 20px rgba(0,0,0,0.35)">
+          <div class="tt-date" id="mtt-date">—</div>
+          <div class="tt-row"><span class="tt-lbl">Actual</span><span class="tt-val" id="mtt-actual">—</span></div>
+          <div class="tt-row"><span class="tt-lbl">2% Hedef</span><span class="tt-val" id="mtt-t2">—</span></div>
+          <div class="tt-row"><span class="tt-lbl">3% Hedef</span><span class="tt-val" id="mtt-t3">—</span></div>
+          <div class="tt-row"><span class="tt-lbl">4% Hedef</span><span class="tt-val" id="mtt-t4">—</span></div>
+        </div>
+      </div>
+      <!-- Data table -->
+      <div style="margin-top:12px;overflow-y:auto;flex-shrink:0;max-height:200px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,240,210,0.4);margin-bottom:10px">Tablo</div>
+        <table class="chart-table" id="chart-data-table">
+          <thead>
+            <tr>
+              <th>Tarih</th>
+              <th>Actual</th>
+              <th>2% Hedef</th>
+              <th>3% Hedef</th>
+              <th>4% Hedef</th>
+            </tr>
+          </thead>
+          <tbody id="chart-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTRIBUTION vs GROWTH -->
+  <div class="card cp sg">
+    <span class="lbl" style="margin-bottom:14px">Contribution vs Investment Growth</span>
+    <div class="g2" style="margin-bottom:14px">
+      <div>
+        <div class="slbl">From Contributions</div>
+        <div class="sval cc" id="d-contrib">—</div>
+        <div class="ssub" id="d-contrib-pct">—</div>
+      </div>
+      <div>
+        <div class="slbl">Investment Returns</div>
+        <div class="sval cv" id="d-growth">—</div>
+        <div class="ssub" id="d-growth-pct">—</div>
+      </div>
+    </div>
+    <div class="splitbar">
+      <div class="sb-c" id="sb-c" style="width:50%"></div>
+      <div class="sb-g" id="sb-g" style="width:50%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:8px">
+      <span style="font-size:10px;color:var(--mu);font-weight:700">◼ Contributions</span>
+      <span style="font-size:10px;color:var(--mu);font-weight:700">Returns ◼</span>
+    </div>
+  </div>
+
+  <!-- GAP TO ALL TARGETS -->
+  <div class="gap-row sg">
+    <div class="gap-item">
+      <div class="gap-item-lbl">vs 2%</div>
+      <div class="gap-item-val cm" id="gap-2">—</div>
+    </div>
+    <div class="gap-item">
+      <div class="gap-item-lbl">vs 3%</div>
+      <div class="gap-item-val cm" id="gap-3">—</div>
+    </div>
+    <div class="gap-item">
+      <div class="gap-item-lbl">vs 4%</div>
+      <div class="gap-item-val cm" id="gap-4">—</div>
+    </div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="g2 sg">
+    <div class="card cp">
+      <div class="slbl">Planned Contributions</div>
+      <div class="sval" id="d-planned">—</div>
+      <div class="ssub">all-time</div>
+    </div>
+    <div class="card cp">
+      <div class="slbl">Actual Contributions</div>
+      <div class="sval" id="d-actual">—</div>
+      <div class="disc-row">
+        <div class="pbar" style="flex:1;margin-top:0"><div class="pfill pg" id="disc-bar" style="width:0%"></div></div>
+        <span class="disc-label" id="d-disc">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- THIS MONTH EXPLAINED -->
+  <div class="interp-card sg">
+    <div class="acc-line" id="dash-acc" style="background:var(--gold);top:16px;bottom:16px"></div>
+    <div style="padding-left:14px">
+      <span class="lbl" style="margin-bottom:10px">This Month Explained</span>
+      <div class="interp-lead" id="d-interp">—</div>
+      <div class="interp-facts" id="d-interp-facts"></div>
+    </div>
+  </div>
+
+  <!-- WEALTH SIGNALS -->
+  <div>
+    <span class="lbl" style="margin-bottom:10px;display:block">Wealth Signals</span>
+    <div class="signal-row" id="d-signals"></div>
+  </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══ TIMELINE ══════════════════════════════════════════════ -->
+<div id="page-timeline" class="page">
+<div class="container">
+  <div class="tl-hdr">
+    <div>
+      <div class="tl-title">Timeline</div>
+      <div class="tl-sub" id="tl-count">0 months</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="openModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;stroke-width:2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Add Month
+    </button>
+  </div>
+  <div id="annual-summary"></div>
+  <div id="tl-list"></div>
+</div>
+</div>
+
+
+<!-- ══ PROJECTION LAB ══════════════════════════════════════════ -->
+<div id="page-projection" class="page">
+<div class="proj-container">
+
+  <div class="proj-title">Projection Lab</div>
+  <div class="proj-sub">Simulate your future portfolio trajectory</div>
+
+  <!-- INPUTS -->
+  <div class="inp-card sg">
+    <div class="inp-group">
+      <div class="inp-label">
+        <span>Starting Portfolio</span>
+        <span class="inp-val" id="p-start-lbl">$130,100</span>
+      </div>
+      <div class="inp-row">
+        <input type="range" id="p-start" min="50000" max="500000" step="1000" value="130100"
+          oninput="syncNum('p-start','p-start-n',1);updateProjection()"/>
+        <input type="number" id="p-start-n" class="inp-num" min="0" step="1000" value="130100"
+          oninput="syncSlider('p-start-n','p-start',1);updateProjection()"/>
+      </div>
+    </div>
+    <div class="inp-group">
+      <div class="inp-label">
+        <span>Monthly Contribution</span>
+        <span class="inp-val" id="p-contrib-lbl">$5,000</span>
+      </div>
+      <div class="inp-row">
+        <input type="range" id="p-contrib" min="0" max="20000" step="250" value="5000"
+          oninput="syncNum('p-contrib','p-contrib-n',1);updateProjection()"/>
+        <input type="number" id="p-contrib-n" class="inp-num" min="0" step="250" value="5000"
+          oninput="syncSlider('p-contrib-n','p-contrib',1);updateProjection()"/>
+      </div>
+    </div>
+    <div class="inp-group">
+      <div class="inp-label">
+        <span>Custom Monthly Return</span>
+        <span class="inp-val" id="p-rate-lbl">3.0%</span>
+      </div>
+      <div class="inp-row">
+        <input type="range" id="p-rate" min="0.5" max="5" step="0.1" value="3"
+          oninput="syncNum('p-rate','p-rate-n',2);updateProjection()"/>
+        <input type="number" id="p-rate-n" class="inp-num" min="0.5" max="5" step="0.1" value="3"
+          oninput="syncSlider('p-rate-n','p-rate',2);updateProjection()"/>
+      </div>
+    </div>
+    <div class="inp-group" style="margin-bottom:0">
+      <div class="inp-label">
+        <span>Time Horizon</span>
+        <span class="inp-val" id="p-years-lbl">5 years</span>
+      </div>
+      <div class="inp-row">
+        <input type="range" id="p-years" min="1" max="15" step="1" value="5"
+          oninput="syncNum('p-years','p-years-n',0);updateProjection()"/>
+        <input type="number" id="p-years-n" class="inp-num" min="1" max="15" step="1" value="5"
+          oninput="syncSlider('p-years-n','p-years',0);updateProjection()"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="card cp sg" style="box-shadow:0 4px 40px rgba(0,0,0,0.4)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <span class="lbl" style="margin-bottom:3px">Future Trajectory</span>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:4px;flex-wrap:wrap">
+          <span style="font-size:10px;color:rgba(77,216,240,0.8);font-family:'JetBrains Mono',monospace">— 2% cons</span>
+          <span style="font-size:10px;color:rgba(245,166,35,0.7);font-family:'JetBrains Mono',monospace">— 3% base</span>
+          <span style="font-size:10px;color:rgba(176,143,255,0.8);font-family:'JetBrains Mono',monospace">— 4% agg</span>
+          <span style="font-size:10px;color:var(--green);font-family:'JetBrains Mono',monospace" id="custom-legend">— <span id="custom-rate-label">3.0%</span> custom</span>
+        </div>
+      </div>
+    </div>
+    <div class="proj-chart-wrap"><canvas id="proj-chart"></canvas></div>
+  </div>
+
+  <!-- RESULT CARDS -->
+  <div class="proj-results sg">
+    <div class="proj-result-card glow-gold">
+      <div class="pr-lbl">Base (3%) Final</div>
+      <div class="pr-val cgo" id="pr-base">—</div>
+      <div class="pr-sub" id="pr-base-sub">—</div>
+    </div>
+    <div class="proj-result-card glow-green">
+      <div class="pr-lbl">Aggressive (4%) Final</div>
+      <div class="pr-val cg" id="pr-agg">—</div>
+      <div class="pr-sub" id="pr-agg-sub">—</div>
+    </div>
+    <div class="proj-result-card glow-violet">
+      <div class="pr-lbl">Total Contributions</div>
+      <div class="pr-val cv" id="pr-contrib">—</div>
+      <div class="pr-sub">over period</div>
+    </div>
+    <div class="proj-result-card">
+      <div class="pr-lbl">Conservative (2%) Final</div>
+      <div class="pr-val cc" id="pr-cons">—</div>
+      <div class="pr-sub" id="pr-cons-sub">—</div>
+    </div>
+  </div>
+
+  <!-- COMPARISON MODE -->
+  <div style="margin-bottom:6px">
+    <span class="lbl" style="display:block;margin-bottom:10px">Custom vs Base (3%) Comparison</span>
+    <div class="compare-card" id="proj-compare"></div>
+  </div>
+
+  <!-- MILESTONE ETA TABLE -->
+  <div style="margin-bottom:6px">
+    <span class="lbl" style="display:block;margin-bottom:10px">Milestone Estimates</span>
+    <div class="ms-table" id="proj-milestones"></div>
+  </div>
+
+  <!-- PROJECTION INSIGHTS -->
+  <div style="margin-bottom:6px;margin-top:18px">
+    <span class="lbl" style="display:block;margin-bottom:10px">Projection Insights</span>
+    <div id="proj-insights"></div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══ OPTIONS INCOME ═══════════════════════════════════════════ -->
+<div id="page-income" class="page">
+<div class="inc-container">
+
+  <div class="inc-title">Options Income</div>
+  <div class="inc-sub">Premium tracking &amp; capital efficiency</div>
+
+  <!-- KPI GRID ─────────────────────────────────────────────────── -->
+  <div class="kpi-grid">
+    <div class="kpi-card" style="border-color:rgba(245,166,35,.18);box-shadow:0 0 24px rgba(245,166,35,.06)">
+      <div class="kpi-lbl">Total Premium YTD</div>
+      <div class="kpi-val cgo" id="ki-ytd-premium">—</div>
+      <div class="kpi-sub" id="ki-ytd-sub">—</div>
+    </div>
+    <div class="kpi-card" style="border-color:rgba(46,232,154,.16);box-shadow:0 0 24px rgba(46,232,154,.05)">
+      <div class="kpi-lbl">Avg Monthly PnL</div>
+      <div class="kpi-val" id="ki-avg-pnl">—</div>
+      <div class="kpi-sub" id="ki-avg-pnl-sub">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">Avg Return on Capital</div>
+      <div class="kpi-val cc" id="ki-avg-roc">—</div>
+      <div class="kpi-sub">per month deployed</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">Avg Capital Used</div>
+      <div class="kpi-val cv" id="ki-avg-cap">—</div>
+      <div class="kpi-sub" id="ki-cap-sub">—</div>
+    </div>
+  </div>
+
+  <!-- BEST / WORST ROW ─────────────────────────────────────────── -->
+  <div class="g2" style="margin-bottom:14px">
+    <div class="kpi-card" style="border-color:rgba(46,232,154,.14)">
+      <div class="kpi-lbl">Best Month</div>
+      <div class="kpi-val cg" id="ki-best-val">—</div>
+      <div class="kpi-sub" id="ki-best-mo">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">Worst Month</div>
+      <div class="kpi-val" id="ki-worst-val">—</div>
+      <div class="kpi-sub" id="ki-worst-mo">—</div>
+    </div>
+  </div>
+
+  <!-- CHART A: Premium income bar chart ──────────────────────────── -->
+  <div class="inc-chart-card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span class="inc-chart-lbl">Monthly Premium Income</span>
+      <span style="font-size:10px;color:var(--gold);font-family:'JetBrains Mono',monospace" id="ch-premium-total">—</span>
+    </div>
+    <div class="inc-chart-wrap"><canvas id="ch-premium"></canvas></div>
+  </div>
+
+  <!-- CHART B: Realized PnL line chart ───────────────────────────── -->
+  <div class="inc-chart-card" style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span class="inc-chart-lbl">Realized Options PnL</span>
+      <span style="font-size:10px;color:var(--cyan);font-family:'JetBrains Mono',monospace" id="ch-pnl-total">—</span>
+    </div>
+    <div class="inc-chart-wrap"><canvas id="ch-pnl"></canvas></div>
+  </div>
+
+  <!-- TRAJECTORY CONNECTION ──────────────────────────────────────── -->
+  <div style="margin-bottom:6px">
+    <span class="lbl" style="display:block;margin-bottom:10px">Trajectory Connection</span>
+    <div id="inc-insights"></div>
+  </div>
+
+  <!-- MONTHLY ENTRIES ────────────────────────────────────────────── -->
+  <div style="margin-top:20px">
+    <div class="inc-sec-hdr">
+      <div>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--tx)">Monthly Entries</span>
+        <div style="font-size:12px;color:var(--mu);margin-top:2px" id="inc-count">0 months</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openIncModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke-width:2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Add
+      </button>
+    </div>
+    <div id="inc-list"></div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══ BREAKDOWN ════════════════════════════════════════════════ -->
+<div id="page-breakdown" class="page">
+<div class="brk-container">
+
+  <div class="brk-title">Portfolio Breakdown</div>
+  <div class="brk-sub">Allocation structure &amp; concentration analysis</div>
+
+  <!-- MISMATCH WARNING (hidden by default) ─────────────────────── -->
+  <div id="brk-warn" class="alloc-warn" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    <span id="brk-warn-text">Allocation total does not match portfolio value.</span>
+  </div>
+
+  <!-- PIE CHART CARD ───────────────────────────────────────────── -->
+  <div class="pie-card sg">
+    <span class="lbl">Current Allocation</span>
+    <div class="pie-wrap">
+      <div class="pie-canvas-wrap">
+        <canvas id="brk-pie" width="130" height="130" style="width:130px;height:130px"></canvas>
+      </div>
+      <div class="pie-legend" id="brk-pie-legend"></div>
+    </div>
+  </div>
+
+  <!-- ALLOC KPI GRID ───────────────────────────────────────────── -->
+  <div class="alloc-grid">
+    <div class="alloc-card" style="border-color:rgba(245,166,35,.16)">
+      <div class="ac-lbl"><span class="ac-dot" style="background:#f5a623"></span>Cash</div>
+      <div class="ac-val" id="bk-cash-val">—</div>
+      <div class="ac-pct" id="bk-cash-pct">—</div>
+    </div>
+    <div class="alloc-card" style="border-color:rgba(77,216,240,.16)">
+      <div class="ac-lbl"><span class="ac-dot" style="background:#4dd8f0"></span>Equities</div>
+      <div class="ac-val" id="bk-eq-val">—</div>
+      <div class="ac-pct" id="bk-eq-pct">—</div>
+    </div>
+    <div class="alloc-card" style="border-color:rgba(176,143,255,.16)">
+      <div class="ac-lbl"><span class="ac-dot" style="background:#b08fff"></span>Options Collateral</div>
+      <div class="ac-val" id="bk-opt-val">—</div>
+      <div class="ac-pct" id="bk-opt-pct">—</div>
+    </div>
+    <div class="alloc-card" style="border-color:rgba(46,232,154,.16)">
+      <div class="ac-lbl"><span class="ac-dot" style="background:#2ee89a"></span>Other</div>
+      <div class="ac-val" id="bk-oth-val">—</div>
+      <div class="ac-pct" id="bk-oth-pct">—</div>
+    </div>
+  </div>
+
+  <!-- SUMMARY ROW ─────────────────────────────────────────────── -->
+  <div class="g2 sg">
+    <div class="alloc-card">
+      <div class="ac-lbl">Total Allocated</div>
+      <div class="ac-val cgo" id="bk-total-alloc">—</div>
+      <div class="ac-pct" id="bk-total-sub">—</div>
+    </div>
+    <div class="alloc-card">
+      <div class="ac-lbl">Largest Category</div>
+      <div class="ac-val" id="bk-largest-val">—</div>
+      <div class="ac-pct" id="bk-largest-name">—</div>
+    </div>
+  </div>
+
+  <!-- TREND CHART ─────────────────────────────────────────────── -->
+  <div class="trend-card sg">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span class="lbl">Allocation Trend</span>
+      <span style="font-size:10px;color:var(--fa);font-family:'JetBrains Mono',monospace">stacked by month</span>
+    </div>
+    <div class="trend-wrap"><canvas id="brk-trend"></canvas></div>
+  </div>
+
+  <!-- RISK INSIGHTS ─────────────────────────────────────────────── -->
+  <div style="margin-bottom:6px">
+    <span class="lbl" style="display:block;margin-bottom:10px">Risk &amp; Structure Insights</span>
+    <div id="brk-insights"></div>
+  </div>
+
+  <!-- MONTHLY ENTRIES ─────────────────────────────────────────── -->
+  <div style="margin-top:20px">
+    <div class="inc-sec-hdr">
+      <div>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--tx)">Monthly Allocations</span>
+        <div style="font-size:12px;color:var(--mu);margin-top:2px" id="brk-count">0 months</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openBrkModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke-width:2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Add
+      </button>
+    </div>
+    <div id="brk-list"></div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══ SETTINGS ═════════════════════════════════════════════════ -->
+<div id="page-settings" class="page">
+<div class="set-container">
+
+  <div class="set-title">Settings</div>
+  <div class="set-sub">Data management &amp; preferences</div>
+
+  <!-- BACKUP ──────────────────────────────────────────────────── -->
+  <div class="set-section">
+    <span class="set-section-title">Backup &amp; Restore</span>
+    <div class="set-card">
+
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Export JSON</div>
+          <div class="set-row-sub">Tüm verilerini JSON dosyası olarak indir. Yedek olarak sakla.</div>
+        </div>
+        <button class="set-btn set-btn-gold" onclick="exportData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          JSON
+        </button>
+      </div>
+
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Export CSV</div>
+          <div class="set-row-sub">Timeline verisini Excel / Google Sheets uyumlu CSV olarak indir.</div>
+        </div>
+        <button class="set-btn set-btn-ghost" onclick="exportCSV()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          CSV
+        </button>
+      </div>
+
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Import Data</div>
+          <div class="set-row-sub">Daha önce export ettiğin JSON dosyasını yükle. Mevcut verinin üzerine yazar.</div>
+        </div>
+        <button class="set-btn set-btn-ghost" onclick="document.getElementById('import-file').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Import
+        </button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"/>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PORTFOLIO SETTINGS ──────────────────────────────────────── -->
+  <div class="set-section">
+    <span class="set-section-title">Portfolio Settings</span>
+    <div class="set-card">
+
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Starting Portfolio Value</div>
+          <div class="set-row-sub">Tüm hedef hesaplamalarının başlangıç noktası.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" id="set-startval" min="0" step="100"
+            style="width:110px;background:rgba(255,255,255,0.75);border:1px solid var(--bd);border-radius:9px;padding:7px 10px;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;text-align:right"
+            onfocus="this.style.borderColor='rgba(245,166,35,.5)'"
+            onblur="this.style.borderColor='var(--bd)'"/>
+          <button class="set-btn set-btn-gold" onclick="saveStartValue()">Save</button>
+        </div>
+      </div>
+
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Currency</div>
+          <div class="set-row-sub">Tüm para değerlerinde kullanılacak para birimi.</div>
+        </div>
+        <select class="curr-select" id="set-currency" onchange="saveCurrency()">
+          <option value="USD">$ USD</option>
+          <option value="EUR">€ EUR</option>
+          <option value="GBP">£ GBP</option>
+          <option value="TRY">₺ TRY</option>
+          <option value="JPY">¥ JPY</option>
+          <option value="CHF">Fr CHF</option>
+          <option value="AUD">A$ AUD</option>
+          <option value="CAD">C$ CAD</option>
+        </select>
+      </div>
+
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Monthly Benchmark Rate</div>
+          <div class="set-row-sub">Timeline'da kendi getirinizle karşılaştırılan aylık hedef oran (%).</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" id="set-benchmark" min="0" max="20" step="0.1"
+            style="width:80px;background:rgba(255,255,255,0.75);border:1px solid var(--bd);border-radius:9px;padding:7px 10px;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;text-align:right"
+            onfocus="this.style.borderColor='rgba(245,166,35,.5)'"
+            onblur="this.style.borderColor='var(--bd)'"/>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mu)">%/mo</span>
+          <button class="set-btn set-btn-gold" onclick="saveBenchmarkRate()">Save</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MILESTONES ──────────────────────────────────────────────── -->
+  <div class="set-section">
+    <span class="set-section-title">Milestones</span>
+    <div class="set-card">
+      <div class="set-row" style="flex-direction:column;align-items:flex-start;gap:12px">
+        <div class="ms-list" id="ms-chips"></div>
+        <div class="ms-add-row" style="width:100%">
+          <input type="number" id="ms-new-val" placeholder="e.g. 750000" min="1" step="1000"/>
+          <button class="set-btn set-btn-gold" onclick="addMilestone()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:13px;height:13px"><path d="M12 5v14M5 12h14"/></svg>
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DANGER ZONE ─────────────────────────────────────────────── -->
+  <div class="set-section">
+    <span class="set-section-title">Danger Zone</span>
+    <div class="set-card">
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">Reset All Data</div>
+          <div class="set-row-sub">Tüm verilerini sil, varsayılan örnek veriye dön.</div>
+        </div>
+        <button class="set-btn set-btn-red" onclick="showConfirm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+          </svg>
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP INFO ────────────────────────────────────────────────── -->
+  <div class="set-section">
+    <div class="set-card">
+      <div class="set-row">
+        <div class="set-row-left">
+          <div class="set-row-label">WealthArc</div>
+          <div class="set-row-sub">Storage key: wealtharc_v4 · Data stored locally in your browser</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+</main>
+
+<!-- NAV -->
+<nav>
+  <button class="nav-btn active" onclick="showPage('dashboard',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+      <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+    </svg>
+    <span class="nav-label">Dashboard</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('timeline',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+      <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
+    </svg>
+    <span class="nav-label">Timeline</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('projection',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 20 L8 14 L13 16 L21 6"/>
+      <path d="M17 6h4v4"/>
+    </svg>
+    <span class="nav-label">Lab</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('income',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 7v5l3 3"/>
+      <path d="M9.5 15.5 L12 13"/>
+    </svg>
+    <span class="nav-label">Income</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('breakdown',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2 a10 10 0 0 1 8.66 5"/>
+      <path d="M20.66 7 a10 10 0 0 1 0 10"/>
+      <path d="M20.66 17 a10 10 0 0 1 -17.32 0"/>
+      <path d="M3.34 17 a10 10 0 0 1 0 -10"/>
+      <path d="M3.34 7 a10 10 0 0 1 8.66 -5"/>
+      <path d="M12 2 L12 12 L20.66 7"/>
+    </svg>
+    <span class="nav-label">Breakdown</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('settings',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+    <span class="nav-label">Settings</span>
+  </button>
+</nav>
+
+</div>
+
+<!-- MODAL -->
+<div class="overlay hidden" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-drag"><div></div></div>
+    <div class="modal-header">
+      <h2 id="modal-title">Add Month</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="lbl">Month</label>
+        <input type="month" id="f-month"/>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label class="lbl">Start Portfolio ($)</label>
+          <input type="number" id="f-start-portfolio" placeholder="e.g. 115,000" min="0"/>
+        </div>
+        <div class="field">
+          <label class="lbl">End Portfolio ($)</label>
+          <input type="number" id="f-portfolio" placeholder="e.g. 122,000" min="0"/>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label class="lbl">Planned Contribution</label>
+          <input type="number" id="f-planned" placeholder="0" min="0"/>
+        </div>
+        <div class="field">
+          <label class="lbl">Actual Contribution</label>
+          <input type="number" id="f-actual-c" placeholder="0" min="0"/>
+        </div>
+      </div>
+      <div class="field" style="margin-top:4px">
+        <label class="lbl">Benchmark Return % <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional — override global rate)</span></label>
+        <input type="number" id="f-benchmark" placeholder="e.g. 1.5" step="0.01" min="-50" max="50"/>
+      </div>
+      <div class="field" style="margin-top:4px">
+        <label class="lbl">Note (optional)</label>
+        <input type="text" id="f-note" placeholder="e.g. Bonus month, market dip…" style="font-family:'DM Sans',sans-serif;font-size:14px"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="del-btn" onclick="deleteMonth()" style="display:none">Delete</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveMonth()">Save</button>
+    </div>
+  </div>
+</div>
+<div id="toast" class="hidden"></div>
+
+<script src="app1.js"></script>
+<script src="app2.js"></script>
+
+<!-- OPTIONS INCOME MODAL ───────────────────────────────────────── -->
+<div class="overlay hidden" id="inc-modal-overlay" onclick="handleIncOverlay(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-drag"><div></div></div>
+    <div class="modal-header">
+      <h2 id="inc-modal-title">Add Income Entry</h2>
+      <button class="modal-close" onclick="closeIncModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="lbl">Month</label>
+        <input type="month" id="if-month"/>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label class="lbl">Premium Income ($)</label>
+          <input type="number" id="if-premium" placeholder="0" min="0"/>
+        </div>
+        <div class="field">
+          <label class="lbl">Realized PnL ($)</label>
+          <input type="number" id="if-pnl" placeholder="0"/>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Capital Used ($)</label>
+        <input type="number" id="if-capital" placeholder="0" min="0"/>
+      </div>
+      <div class="field" style="margin-top:4px">
+        <label class="lbl">Note (optional)</label>
+        <input type="text" id="if-note" placeholder="e.g. CSP on AAPL, PCS on SPX…" style="font-family:'DM Sans',sans-serif;font-size:14px"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="inc-del-btn" onclick="deleteIncEntry()" style="display:none">Delete</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeIncModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveIncEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- BREAKDOWN MODAL ─────────────────────────────────────────────── -->
+<div class="overlay hidden" id="brk-modal-overlay" onclick="handleBrkOverlay(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-drag"><div></div></div>
+    <div class="modal-header">
+      <h2 id="brk-modal-title">Add Allocation</h2>
+      <button class="modal-close" onclick="closeBrkModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="lbl">Month</label>
+        <input type="month" id="bf-month"/>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label class="lbl">Cash ($)</label>
+          <input type="number" id="bf-cash" placeholder="0" min="0"/>
+        </div>
+        <div class="field">
+          <label class="lbl">Equities ($)</label>
+          <input type="number" id="bf-equities" placeholder="0" min="0"/>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label class="lbl">Options Collateral ($)</label>
+          <input type="number" id="bf-options" placeholder="0" min="0"/>
+        </div>
+        <div class="field">
+          <label class="lbl">Other ($)</label>
+          <input type="number" id="bf-other" placeholder="0" min="0"/>
+        </div>
+      </div>
+      <div class="field" style="margin-top:4px">
+        <label class="lbl">Note (optional)</label>
+        <input type="text" id="bf-note" placeholder="e.g. Rebalanced after bonus…" style="font-family:'DM Sans',sans-serif;font-size:14px"/>
+      </div>
+      <!-- Live total preview -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05)">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mu)">Allocation Total</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--tx)" id="bf-total-preview">$0</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="brk-del-btn" onclick="deleteBrkEntry()" style="display:none">Delete</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeBrkModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveBrkEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- CONFIRM DIALOG ──────────────────────────────────────────────── -->
+<div class="confirm-overlay hidden" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-title">Reset All Data?</div>
+    <div class="confirm-msg">Bu işlem geri alınamaz. Tüm aylık veriler, Income ve Breakdown kayıtları silinir. Örnek veriye dönülür.</div>
+    <div class="confirm-btns">
+      <button class="set-btn set-btn-ghost" onclick="hideConfirm()">İptal</button>
+      <button class="set-btn set-btn-red" onclick="confirmReset()">Evet, Sil</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function() {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}
+</script>
+</body>
 </html>
