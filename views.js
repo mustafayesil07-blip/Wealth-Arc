@@ -495,6 +495,14 @@ function viewHistory() {
   }
 
   const rows = [...sum.rows].reverse()
+
+  // Months with no snapshot between two that do have one
+  const gapBefore = {}
+  for (let i = 0; i < sum.rows.length - 1; i++) {
+    const missing = monthDiff(sum.rows[i].month, sum.rows[i + 1].month) - 1
+    if (missing > 0) gapBefore[sum.rows[i + 1].month] = missing
+  }
+
   const byYear = {}
   rows.forEach(r => {
     const y = r.month.slice(0, 4)
@@ -544,7 +552,9 @@ function viewHistory() {
             </span>
             <span class="snap-worth num">${compactMoney(r.end)}</span>
             <span class="snap-ret num ${tone(r.ret)}">${r.ret == null ? '—' : pct(r.ret, 1)}</span>
-          </button>`).join('')}
+          </button>
+          ${gapBefore[r.month] ? `<div class="snap-gap">${gapBefore[r.month]} month${
+            gapBefore[r.month] === 1 ? '' : 's'} not recorded</div>` : ''}`).join('')}
       </div>
       <div class="small muted" style="margin:8px 4px 0">
         ${money(fresh)} new capital in ${y}

@@ -505,6 +505,18 @@ function summary(st) {
   const span = rows.length >= 2 ? monthDiff(rows[0].month, last.month) : 0
   const avgMonthlyGain = span > 0 ? (netWorth - rows[0].begin) / span : null
 
+  // What the recorded months do not explain: months never entered, or an
+  // opening balance typed in that differs from the previous month's close.
+  // Surfacing it keeps baseline + capital + growth honest against net worth.
+  const unreconciled = netWorth - (baseline + totalFresh + totalGrowth)
+
+  // Months that sit between two snapshots without one of their own
+  const gaps = []
+  for (let i = 1; i < rows.length; i++) {
+    const missing = monthDiff(rows[i - 1].month, rows[i].month) - 1
+    if (missing > 0) gaps.push({ after: rows[i - 1].month, before: rows[i].month, missing })
+  }
+
   return {
     rows, last, prev, baseline, netWorth, monthDelta, monthPct,
     totalFresh, totalGrowth, plannedSum, discipline,
@@ -512,7 +524,7 @@ function summary(st) {
     ytdFresh, ytdGrowth, year,
     benchSeries, benchNow, benchGap,
     optPremiumYtd, optPnlYtd, optAvgPnl, optAvgCap, optRoc, optCount: optRows.length,
-    allocation, avgMonthlyGain,
+    allocation, avgMonthlyGain, unreconciled, gaps,
   }
 }
 

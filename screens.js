@@ -1223,6 +1223,11 @@ function openPerformanceSheet() {
         sum.totalFresh + sum.totalGrowth !== 0
           ? `${pctPlain(Math.abs(sum.totalGrowth) / (Math.abs(sum.totalGrowth) + Math.abs(sum.totalFresh)) * 100, 0)} of all wealth added`
           : '', '')}
+      ${Math.abs(sum.unreconciled) >= 1 ? rowStatic('Unreconciled',
+        money(sum.unreconciled, { signed: true }),
+        sum.gaps.length
+          ? `${sum.gaps.reduce((s, g) => s + g.missing, 0)} month(s) never recorded`
+          : 'opening balance differs from the prior close', '') : ''}
       ${mom(3) != null ? rowStatic('3-month change', pct(mom(3)), 'net worth momentum', '') : ''}
       ${mom(6) != null ? rowStatic('6-month change', pct(mom(6)), 'net worth momentum', '') : ''}
       ${best ? rowStatic('Best month', pct(best.ret), monthLabel(best.month, true), money(best.growth, { signed: true })) : ''}

@@ -316,17 +316,19 @@ button.row:active, a.row:active { background: var(--fill); }
 
 .row-main { flex: 1; min-width: 0; }
 .row-label {
+  display: block; max-width: 100%;
   font-size: 16px; font-weight: 450;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .row-sub {
+  display: block; max-width: 100%;
   margin-top: 2px;
   font-size: 13px; color: var(--text-2);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .row-side { text-align: right; flex-shrink: 0; }
-.row-value { font-size: 16px; font-weight: 500; letter-spacing: -0.02em; }
-.row-delta { margin-top: 2px; font-size: 13px; color: var(--text-2); }
+.row-value { font-size: 16px; font-weight: 500; letter-spacing: -0.02em; white-space: nowrap; }
+.row-delta { margin-top: 2px; font-size: 13px; color: var(--text-2); white-space: nowrap; }
 
 .row-chevron {
   width: 8px; height: 13px; flex-shrink: 0;
@@ -549,18 +551,18 @@ button.row:active, a.row:active { background: var(--fill); }
 }
 
 /* ---- 12. STATS GRID -------------------------------------- */
+/* Tiles rather than one divided card: an odd number of stats then leaves
+   plain background behind instead of an empty, visibly tinted cell. */
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: var(--r-card);
-  overflow: hidden;
-  box-shadow: var(--shadow-card);
+  gap: 10px;
 }
 .stat {
   background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card);
   padding: 15px 16px 16px;
 }
 .stat-label {
@@ -886,21 +888,37 @@ details.fold > .fold-body { padding: 0 2px 18px; }
 }
 .snap-row:first-child { border-top: 0; }
 .snap-row:active { background: var(--fill); }
-.snap-month { font-size: 15px; font-weight: 500; }
+
+/* The first cell holds month + note; it must be allowed to shrink so a long
+   note truncates instead of pushing the figures out of the row. */
+.snap-row > :first-child { min-width: 0; display: block; }
+
+.snap-month { display: block; font-size: 15px; font-weight: 500; }
 .snap-note {
+  display: block; max-width: 100%;
   margin-top: 2px; font-size: 12px; color: var(--text-3);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  max-width: 34ch;
 }
 .snap-worth {
   font-size: 15px; font-weight: 500; text-align: right;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .snap-ret {
   min-width: 62px; text-align: right;
   font-size: 13px; font-weight: 500;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
+
+.snap-gap {
+  padding: 8px 16px;
+  border-top: 1px dashed var(--line-strong);
+  background: var(--fill);
+  font-size: 12px; color: var(--text-2);
+  text-align: center;
+}
+.snap-gap + .snap-row { border-top: 1px dashed var(--line-strong); }
 
 /* ---- 20. INSIGHT / CALLOUT ------------------------------- */
 .insight {

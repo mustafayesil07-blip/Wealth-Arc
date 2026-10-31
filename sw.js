@@ -3,7 +3,7 @@
    Offline-first shell with stale-while-revalidate updates.
    ============================================================ */
 
-const CACHE = 'wealtharc-v7'
+const CACHE = 'wealtharc-v8'
 const SCOPE = '/Wealth-Arc/'
 
 const CORE = [

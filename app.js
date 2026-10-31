@@ -143,7 +143,7 @@ function renderChrome() {
   bar.innerHTML = `
     <h1 class="topbar-title">${tab.title}</h1>
     ${tab.add ? `<button class="topbar-action is-primary" data-act="${tab.add}"
-        aria-label="${tab.add === 'add-goal' ? 'Add goal' : 'Add snapshot'}">
+        aria-label="${tab.add === 'add-goal' ? 'Add goal' : 'Add month'}">
         ${icon('plus')}<span>${tab.add === 'add-goal' ? 'Goal' : 'Month'}</span></button>` : ''}`
 
   const nav = document.getElementById('tabbar')
